@@ -1,0 +1,28 @@
+{
+  "name": "anvara-takehome",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r dev",
+    "e2e": "pnpm -r e2e",
+    "format": "pnpm -r format",
+    "lint": "pnpm -r lint",
+    "reset": "pnpm dlx tsx scripts/reset.ts",
+    "setup-project": "pnpm dlx tsx scripts/setup.ts",
+    "stop": "docker compose down",
+    "test": "pnpm -r test",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "devDependencies": {
+    "@anvara/prettier-config": "workspace:*",
+    "@playwright/test": "^1.62.1",
+    "dotenv-cli": "^11.0.0",
+    "prettier": "^3.9.6",
+    "tsx": "^4.23.12"
+  },
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
