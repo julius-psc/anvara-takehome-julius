@@ -2,6 +2,18 @@ ROADMAP.md is a document to track my progress across the different challenges.
 
 ---
 
+## Hidden challenges / extras found
+
+Stuff I found and handled beyond the 5 numbered challenges (they hinted there's more than five):
+
+- Implemented `GET /api/auth/me` — it was a TODO stub waiting for the Challenge 3 auth middleware, now it validates the session and returns the current user.
+- Fixed the broken `POST /api/ad-slots` — it was writing `dimensions` and `pricingModel`, fields that don't exist in the Prisma schema. Removed them + added real validation.
+- Flagged (not missed) the `book`/`unbook` auth gap — see the security note under Challenge 3.
+
+(more to come as I go)
+
+---
+
 ## Challenge 1
 
 ### Part 1
@@ -80,3 +92,107 @@ sponsorId is made a guaranteed string when passed down.
 
 After these changes, and checking the sponsor dashboard page's source, Q1 Product Launch indeed appears in the source HTML which means it was fetched server-side. This is confirmed by the network tab too. 
 
+Done :-))
+
+---
+
+## Challenge 3
+
+Now, let's move to the interesting part which is authentication and authorization. Currently the backend has no auth, authMiddleware just calls next(). 
+
+The little issue: Better Auth is configured on the frontend but the backend is separate Express app. HOWEVER, Better Auth stores its session/user tables in the same Postgres, joined up by the same BETTER_AUTH_SECRET. So the backend can read a frontend's issued session, just by looking up that shared table. 
+
+Basically, the frontend doesn't even need to be running.
+
+### Part 1
+
+I need to create a Better Auth instance on the backend that's the same as the frontend config, same DB and same secret.
+
+This is only used to read sessions while the frontend stays the sole source of truth for signing in/out.
+
+Noticed the same type tooling error as in Challenge 1 for pg with no type declarations so i installed it with  @types/pg
+
+### Part 2
+
+So I start by bridging the Express Node headers object into the Web Headers object Better Auth expects. (line 30-32).
+
+So if there's no valid session, 401.
+
+The Better Auth users table doesn't know about sponsors/publishers because they live in the domain tables. That's where the role + the ownership id come from. 
+
+So if it's a valid session, it looks up the Sponsor and Publisher records in parallel by userId to get the user's role and sponsorId/publisherId which is then attached to req.user.
+
+requireRole() is a new addition where it returns 403 for the wrong role
+
+So overall here the concept to retain from this is : requireAuth is authentication (hmm,, who are you?) while the ownership scoping in the routes is authorization ("what are you allowed to do ?")
+
+Found a hidden challenge with  GET /api/auth/me so it's requireAuth and then returns req.user.
+
+### Part 3
+
+So now I apply to requireAuth to the whole router and I found three security patterns : 
+
+1.The list of all campaigns:  GET /api/campaigns
+The risk: returning everyone's campaigns or letting the caller pick anyone's campaign to see.
+The old implementation trusted a query param :  /api/campaigns?sponsorId=<anyone> o basically i could put anyone's id in the URL and read the person's campaigns.
+
+The pattern here : scope the query to the SESSION
+
+const sponsorId = req.user?.sponsorId;        // this is from the logged in session
+if (!sponsorId) { res.status(403)...; return; }
+
+const campaigns = await prisma.campaign.findMany({
+  where: { sponsorId },                        // so i should only show THIS sponsor's rows. 
+});
+
+Basically the sponsorId comes from who you are (the session) and not what you asked (the URL)
+
+2. One single campaign: GET /api/campaigns/:id
+The risk: I know a campaign's id so i request /api/campaigns/<your-campaign-id> and read it even thouh it's not mine. 
+
+The pattern here: put ownership INSIDE the lookup, then 404 if it's not found. 
+
+const campaign = await prisma.campaign.findFirst({
+  where: { id, sponsorId },                    // must match id AND be mine
+});
+
+if (!campaign) {
+  res.status(404).json({ error: 'Campaign not found' }); // missing OR not mine
+  return;
+}
+
+Since now the query requires both my id AND my sponsorId, someone else's campaign never matches so reads as "404 not found". 
+
+3. Create a campaign : POST /api/campaigns
+The risk: I send { name: "...", sponsorId: "<your-id>" } in the body and create a campaign under your account.
+
+The pattern here: ignore sponsorId that's in the body and set it from the session.
+
+const { name, budget, startDate, endDate /* I didn't include sponsorId */ } = req.body;
+
+await prisma.campaign.create({
+  data: {
+    name, budget, /* ... */
+    sponsorId,                                 // from session, not from body
+  },
+});
+
+So the key idea from all these 3 patterns is that : Ownership should be decided by the session, not by the request. Whether reading a list, an item or creating one, the sponsorId comes from the person who's logged in, not the client's input (ex: query param)
+
+### Part 4
+
+So we want a marketplace that is browsable without login so GET /api/ad-slots and GET /:id stay public. I added  GET /api/ad-slots/mine which will return ONLY the publisher's own slots. I placed it before /:id so that Express doesn't read "mine" as an id. 
+
+POST /api/ad-slots had unexisting fields that don't exist in the Prisma schema. So I removed them and then publisherId is now from the session, with validation.
+
+Here, I implemented the same 3 pattern security as campaigns, but just with publisherId. If a sponsor tries a publisher action, 403.
+
+### Security note I want to flag (book/unbook)
+
+While securing the ad-slots I noticed POST /api/ad-slots/:id/book and /unbook are still unauthenticated and trust a sponsorId from the request body, so technically anyone could mark a slot (un)available. I deliberately scoped these out for now: the booking flow is a stub (it doesn't create a real Placement record yet) and locking it down properly means designing that model + it touches the public marketplace "book" action. I flagged it directly in the code with a SECURITY TODO comment. The fix would follow the exact same pattern as everything else: require an authenticated sponsor and take sponsorId from the session, not the body. So this is a KNOWN + identified gap, not a missed one.
+
+### Part 5
+
+Now I need to make the frontend reflect the new security model. Before, the sponsor dashboard was sending /api/campaigns?sponsorId=X, but the backend now ignores that and scopes by the session, so sending it is basically "wrong" now (it implies the client controls the scoping when it shouldn't).
+
+So I dropped sponsorId everywhere on the frontend: lib/data.ts just fetches /api/campaigns (cookie only), CampaignList doesn't take a sponsorId prop anymore, and page.tsx only checks the role (it no longer passes an id down). The client just asks "give me MY campaigns" and the server decides who "my" is.
