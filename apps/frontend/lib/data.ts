@@ -8,19 +8,20 @@ import type { Campaign } from './types';
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291';
 
 /**
- * Fetch a sponsor's campaigns on the server.
+ * Fetch the authenticated sponsor's campaigns on the server.
  *
- * Forwards the incoming request's cookies to the backend so the session can be
- * authenticated (required once Challenge 3 secures the API). Uses `no-store`
- * because this is per-user data that must always be fresh.
+ * Forwards the incoming request's cookies so the backend can authenticate the
+ * session. The backend derives the sponsor from that session and scopes the
+ * results itself — the client never sends a sponsorId. Uses `no-store` because
+ * this is per-user data that must always be fresh.
  *
  * Throws on a non-OK response so the nearest error boundary (error.tsx) can
  * render a graceful error state.
  */
-export async function getSponsorCampaigns(sponsorId: string): Promise<Campaign[]> {
+export async function getSponsorCampaigns(): Promise<Campaign[]> {
   const cookie = (await headers()).get('cookie') ?? '';
 
-  const res = await fetch(`${API_URL}/api/campaigns?sponsorId=${sponsorId}`, {
+  const res = await fetch(`${API_URL}/api/campaigns`, {
     headers: { cookie },
     cache: 'no-store',
   });

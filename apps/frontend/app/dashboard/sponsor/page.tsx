@@ -15,9 +15,10 @@ export default async function SponsorDashboard() {
     redirect('/login');
   }
 
-  // Verify user has 'sponsor' role (and a sponsorId to scope data to)
+  // Verify user has 'sponsor' role. Data scoping is handled server-side by the
+  // backend (it derives the sponsor from the session), so we don't pass an id.
   const roleData = await getUserRole(session.user.id);
-  if (roleData.role !== 'sponsor' || !roleData.sponsorId) {
+  if (roleData.role !== 'sponsor') {
     redirect('/');
   }
 
@@ -30,7 +31,7 @@ export default async function SponsorDashboard() {
 
       {/* Shell renders immediately; the campaign list streams in when ready. */}
       <Suspense fallback={<CampaignListSkeleton />}>
-        <CampaignList sponsorId={roleData.sponsorId} />
+        <CampaignList />
       </Suspense>
     </div>
   );

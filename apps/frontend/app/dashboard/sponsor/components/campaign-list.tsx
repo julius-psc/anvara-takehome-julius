@@ -4,8 +4,8 @@ import { CampaignCard } from './campaign-card';
 // Async Server Component: fetches the sponsor's campaigns on the server.
 // Rendered inside a <Suspense> boundary, so the `await` below is what streams
 // in once the data resolves (the page shell renders immediately).
-export async function CampaignList({ sponsorId }: { sponsorId: string }) {
-  const campaigns = await getSponsorCampaigns(sponsorId);
+export async function CampaignList() {
+  const campaigns = await getSponsorCampaigns();
 
   if (campaigns.length === 0) {
     return (
