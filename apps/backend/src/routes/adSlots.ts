@@ -1,10 +1,17 @@
 import { Router, type Request, type Response, type IRouter } from 'express';
 import { prisma } from '../db.js';
 import { getParam } from '../utils/helpers.js';
+import { requireAuth, type AuthRequest } from '../auth.js';
 
 const router: IRouter = Router();
 
-// GET /api/ad-slots - List available ad slots
+// Valid ad slot types — matches the Prisma AdSlotType enum.
+const AD_SLOT_TYPES = ['DISPLAY', 'VIDEO', 'NATIVE', 'NEWSLETTER', 'PODCAST'] as const;
+type AdSlotType = (typeof AD_SLOT_TYPES)[number];
+
+// GET /api/ad-slots - PUBLIC marketplace listing.
+// Browsing available inventory is meant to be public (no auth), so anyone can
+// discover slots to advertise on.
 router.get('/', async (req: Request, res: Response) => {
   try {
     const { publisherId, type, available } = req.query;
@@ -13,7 +20,7 @@ router.get('/', async (req: Request, res: Response) => {
       where: {
         ...(publisherId && { publisherId: getParam(publisherId) }),
         ...(type && {
-          type: type as string as 'DISPLAY' | 'VIDEO' | 'NATIVE' | 'NEWSLETTER' | 'PODCAST',
+          type: type as string as AdSlotType,
         }),
         ...(available === 'true' && { isAvailable: true }),
       },
@@ -31,7 +38,30 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/ad-slots/:id - Get single ad slot with details
+// GET /api/ad-slots/mine - the authenticated publisher's OWN slots (for the dashboard).
+// Must be declared before '/:id' so "mine" isn't captured as an :id param.
+router.get('/mine', requireAuth, async (req: AuthRequest, res: Response) => {
+  const publisherId = req.user?.publisherId;
+  if (!publisherId) {
+    res.status(403).json({ error: 'Only publishers can access their ad slots' });
+    return;
+  }
+
+  try {
+    const adSlots = await prisma.adSlot.findMany({
+      where: { publisherId },
+      include: { _count: { select: { placements: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    res.json(adSlots);
+  } catch (error) {
+    console.error('Error fetching ad slots:', error);
+    res.status(500).json({ error: 'Failed to fetch ad slots' });
+  }
+});
+
+// GET /api/ad-slots/:id - PUBLIC single ad slot detail (marketplace detail page).
 router.get('/:id', async (req: Request, res: Response) => {
   try {
     const id = getParam(req.params.id);
@@ -59,32 +89,42 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/ad-slots - Create new ad slot
-// BUG: This accepts 'dimensions' and 'pricingModel' fields that don't exist in Prisma schema
-// BUG: No input validation for basePrice (could be negative or zero)
-router.post('/', async (req: Request, res: Response) => {
-  try {
-    const { name, description, type, dimensions, basePrice, pricingModel, publisherId } = req.body;
+// POST /api/ad-slots - create an ad slot for the authenticated publisher.
+router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
+  const publisherId = req.user?.publisherId;
+  if (!publisherId) {
+    res.status(403).json({ error: 'Only publishers can create ad slots' });
+    return;
+  }
 
-    if (!name || !type || !basePrice || !publisherId) {
+  try {
+    const { name, description, type, basePrice } = req.body;
+
+    if (!name || !type || basePrice === undefined) {
+      res.status(400).json({ error: 'Name, type, and basePrice are required' });
+      return;
+    }
+
+    if (!AD_SLOT_TYPES.includes(type)) {
       res.status(400).json({
-        error: 'Name, type, basePrice, and publisherId are required',
+        error: `Invalid type. Must be one of: ${AD_SLOT_TYPES.join(', ')}`,
       });
       return;
     }
 
-    // TODO: Add authentication middleware to verify user owns publisherId
-    // TODO: Validate that basePrice is positive
-    // TODO: Validate that 'type' is valid enum value
+    const price = Number(basePrice);
+    if (Number.isNaN(price) || price <= 0) {
+      res.status(400).json({ error: 'basePrice must be a positive number' });
+      return;
+    }
 
     const adSlot = await prisma.adSlot.create({
       data: {
         name,
         description,
-        type,
-        dimensions, // BUG: This field doesn't exist in schema
-        basePrice,
-        pricingModel: pricingModel || 'CPM', // BUG: This field doesn't exist in schema
+        type: type as AdSlotType,
+        basePrice: price,
+        // From the session, never the request body.
         publisherId,
       },
       include: {
@@ -100,7 +140,9 @@ router.post('/', async (req: Request, res: Response) => {
 });
 
 // POST /api/ad-slots/:id/book - Book an ad slot (simplified booking flow)
-// This marks the slot as unavailable and creates a simple booking record
+// SECURITY TODO: this is still unauthenticated and trusts sponsorId from the body.
+// It should require an authenticated sponsor and derive sponsorId from the session.
+// Left as-is for now because the booking model (Placement creation) is a stub.
 router.post('/:id/book', async (req: Request, res: Response) => {
   try {
     const id = getParam(req.params.id);
@@ -156,8 +198,8 @@ router.post('/:id/unbook', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
-    if (typeof id !== 'string') { 
-      return res.status(400).json({ error: 'Invalid ID' })
+    if (typeof id !== 'string') {
+      return res.status(400).json({ error: 'Invalid ID' });
     }
 
     const updatedSlot = await prisma.adSlot.update({
@@ -179,7 +221,7 @@ router.post('/:id/unbook', async (req: Request, res: Response) => {
   }
 });
 
-// TODO: Add PUT /api/ad-slots/:id endpoint
-// TODO: Add DELETE /api/ad-slots/:id endpoint
+// TODO: Add PUT /api/ad-slots/:id endpoint (Challenge 4)
+// TODO: Add DELETE /api/ad-slots/:id endpoint (Challenge 4)
 
 export default router;
