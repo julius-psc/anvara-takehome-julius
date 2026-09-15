@@ -1,5 +1,5 @@
 import { Router, type Response, type IRouter } from 'express';
-import { prisma } from '../db.js';
+import { prisma, CampaignStatus } from '../db.js';
 import { getParam } from '../utils/helpers.js';
 import { requireAuth, type AuthRequest } from '../auth.js';
 
@@ -134,7 +134,97 @@ router.post('/', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// TODO: Add PUT /api/campaigns/:id endpoint (Challenge 4)
-// TODO: Add DELETE /api/campaigns/:id endpoint (Challenge 4)
+// PUT /api/campaigns/:id - update a campaign the sponsor owns
+router.put('/:id', async (req: AuthRequest, res: Response) => {
+  const sponsorId = req.user?.sponsorId;
+  if (!sponsorId) {
+    res.status(403).json({ error: 'Only sponsors can update campaigns' });
+    return;
+  }
+
+  try {
+    const id = getParam(req.params.id);
+
+    // Verify ownership first. Prisma's update() only accepts a unique selector
+    // (the id), so we can't scope the update itself by sponsorId — we check
+    // ownership here and 404 if the campaign isn't found or isn't ours.
+    const existing = await prisma.campaign.findFirst({ where: { id, sponsorId } });
+    if (!existing) {
+      res.status(404).json({ error: 'Campaign not found' });
+      return;
+    }
+
+    const { name, description, budget, cpmRate, cpcRate, startDate, endDate, status } = req.body;
+
+    // Validate only the fields that were actually provided (partial update).
+    if (name !== undefined && (typeof name !== 'string' || name.trim() === '')) {
+      res.status(400).json({ error: 'Name must be a non-empty string' });
+      return;
+    }
+    if (budget !== undefined && (Number.isNaN(Number(budget)) || Number(budget) <= 0)) {
+      res.status(400).json({ error: 'Budget must be a positive number' });
+      return;
+    }
+    if (status !== undefined && !Object.values(CampaignStatus).includes(status)) {
+      res.status(400).json({
+        error: `Invalid status. Must be one of: ${Object.values(CampaignStatus).join(', ')}`,
+      });
+      return;
+    }
+
+    const campaign = await prisma.campaign.update({
+      where: { id },
+      data: {
+        // Only the provided fields are updated. sponsorId is deliberately absent
+        // — ownership can never be reassigned through an update.
+        ...(name !== undefined && { name }),
+        ...(description !== undefined && { description }),
+        ...(budget !== undefined && { budget }),
+        ...(cpmRate !== undefined && { cpmRate }),
+        ...(cpcRate !== undefined && { cpcRate }),
+        ...(startDate !== undefined && { startDate: new Date(startDate) }),
+        ...(endDate !== undefined && { endDate: new Date(endDate) }),
+        ...(status !== undefined && { status }),
+      },
+      include: {
+        sponsor: { select: { id: true, name: true } },
+      },
+    });
+
+    res.json(campaign);
+  } catch (error) {
+    console.error('Error updating campaign:', error);
+    res.status(500).json({ error: 'Failed to update campaign' });
+  }
+});
+
+// DELETE /api/campaigns/:id - delete a campaign the sponsor owns
+router.delete('/:id', async (req: AuthRequest, res: Response) => {
+  const sponsorId = req.user?.sponsorId;
+  if (!sponsorId) {
+    res.status(403).json({ error: 'Only sponsors can delete campaigns' });
+    return;
+  }
+
+  try {
+    const id = getParam(req.params.id);
+
+    // Verify ownership before deleting — otherwise anyone could delete any
+    // campaign by guessing its id.
+    const existing = await prisma.campaign.findFirst({ where: { id, sponsorId } });
+    if (!existing) {
+      res.status(404).json({ error: 'Campaign not found' });
+      return;
+    }
+
+    await prisma.campaign.delete({ where: { id } });
+
+    // 204 No Content: success, nothing to return.
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting campaign:', error);
+    res.status(500).json({ error: 'Failed to delete campaign' });
+  }
+});
 
 export default router;
