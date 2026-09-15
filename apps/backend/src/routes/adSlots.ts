@@ -156,6 +156,10 @@ router.post('/:id/unbook', async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
 
+    if (typeof id !== 'string') { 
+      return res.status(400).json({ error: 'Invalid ID' })
+    }
+
     const updatedSlot = await prisma.adSlot.update({
       where: { id },
       data: { isAvailable: true },
