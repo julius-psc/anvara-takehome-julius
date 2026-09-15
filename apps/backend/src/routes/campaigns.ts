@@ -1,18 +1,29 @@
-import { Router, type Request, type Response, type IRouter } from 'express';
+import { Router, type Response, type IRouter } from 'express';
 import { prisma } from '../db.js';
 import { getParam } from '../utils/helpers.js';
+import { requireAuth, type AuthRequest } from '../auth.js';
 
 const router: IRouter = Router();
 
-// GET /api/campaigns - List all campaigns
-router.get('/', async (req: Request, res: Response) => {
+// Every campaign route requires an authenticated user.
+router.use(requireAuth);
+
+// GET /api/campaigns - list the authenticated sponsor's own campaigns
+router.get('/', async (req: AuthRequest, res: Response) => {
+  const sponsorId = req.user?.sponsorId;
+  if (!sponsorId) {
+    res.status(403).json({ error: 'Only sponsors can access campaigns' });
+    return;
+  }
+
   try {
-    const { status, sponsorId } = req.query;
+    const { status } = req.query;
 
     const campaigns = await prisma.campaign.findMany({
       where: {
+        // Scoped to the session's sponsor — the client cannot widen this.
+        sponsorId,
         ...(status && { status: status as string as 'ACTIVE' | 'PAUSED' | 'COMPLETED' }),
-        ...(sponsorId && { sponsorId: getParam(sponsorId) }),
       },
       include: {
         sponsor: { select: { id: true, name: true, logo: true } },
@@ -28,12 +39,22 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/campaigns/:id - Get single campaign with details
-router.get('/:id', async (req: Request, res: Response) => {
+// GET /api/campaigns/:id - get a single campaign the sponsor owns
+router.get('/:id', async (req: AuthRequest, res: Response) => {
+  const sponsorId = req.user?.sponsorId;
+  if (!sponsorId) {
+    res.status(403).json({ error: 'Only sponsors can access campaigns' });
+    return;
+  }
+
   try {
     const id = getParam(req.params.id);
-    const campaign = await prisma.campaign.findUnique({
-      where: { id },
+
+    // Ownership is baked into the query: a campaign this sponsor doesn't own is
+    // simply "not found". Returning 404 for both missing AND not-owned means we
+    // never reveal that another sponsor's campaign exists.
+    const campaign = await prisma.campaign.findFirst({
+      where: { id, sponsorId },
       include: {
         sponsor: true,
         creatives: true,
@@ -58,8 +79,14 @@ router.get('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/campaigns - Create new campaign
-router.post('/', async (req: Request, res: Response) => {
+// POST /api/campaigns - create a campaign for the authenticated sponsor
+router.post('/', async (req: AuthRequest, res: Response) => {
+  const sponsorId = req.user?.sponsorId;
+  if (!sponsorId) {
+    res.status(403).json({ error: 'Only sponsors can create campaigns' });
+    return;
+  }
+
   try {
     const {
       name,
@@ -71,12 +98,11 @@ router.post('/', async (req: Request, res: Response) => {
       endDate,
       targetCategories,
       targetRegions,
-      sponsorId,
     } = req.body;
 
-    if (!name || !budget || !startDate || !endDate || !sponsorId) {
+    if (!name || !budget || !startDate || !endDate) {
       res.status(400).json({
-        error: 'Name, budget, startDate, endDate, and sponsorId are required',
+        error: 'Name, budget, startDate, and endDate are required',
       });
       return;
     }
@@ -92,6 +118,8 @@ router.post('/', async (req: Request, res: Response) => {
         endDate: new Date(endDate),
         targetCategories: targetCategories || [],
         targetRegions: targetRegions || [],
+        // From the session, never from the request body — a client cannot create
+        // a campaign under someone else's sponsor.
         sponsorId,
       },
       include: {
@@ -106,7 +134,7 @@ router.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// TODO: Add PUT /api/campaigns/:id endpoint
-// Update campaign details (name, budget, dates, status, etc.)
+// TODO: Add PUT /api/campaigns/:id endpoint (Challenge 4)
+// TODO: Add DELETE /api/campaigns/:id endpoint (Challenge 4)
 
 export default router;
