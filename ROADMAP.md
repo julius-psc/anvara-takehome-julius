@@ -4,7 +4,7 @@ ROADMAP.md is a document to track my progress across the different challenges.
 
 ## Hidden challenges / extras found
 
-Stuff I found and handled beyond the 5 numbered challenges (they hinted there's more than five):
+Stuff I found and handled beyond the 5 numbered challenges:
 
 - Implemented `GET /api/auth/me` — it was a TODO stub waiting for the Challenge 3 auth middleware, now it validates the session and returns the current user.
 - Fixed the broken `POST /api/ad-slots` — it was writing `dimensions` and `pricingModel`, fields that don't exist in the Prisma schema. Removed them + added real validation.
@@ -196,3 +196,53 @@ While securing the ad-slots I noticed POST /api/ad-slots/:id/book and /unbook ar
 Now I need to make the frontend reflect the new security model. Before, the sponsor dashboard was sending /api/campaigns?sponsorId=X, but the backend now ignores that and scopes by the session, so sending it is basically "wrong" now (it implies the client controls the scoping when it shouldn't).
 
 So I dropped sponsorId everywhere on the frontend: lib/data.ts just fetches /api/campaigns (cookie only), CampaignList doesn't take a sponsorId prop anymore, and page.tsx only checks the role (it no longer passes an id down). The client just asks "give me MY campaigns" and the server decides who "my" is.
+
+Done :-)))
+
+---
+
+## Challenge 4
+
+### Part 1
+
+Here i'm going to deal with PUT/DELETE for campaigns (routes/campaigns.ts) which I added and both are behind requireAuth and scoped to the session.
+
+Slight issue : Prisma's update() and delete() only accept a UNIQUE selector - for campaigns that's just the id. 
+So I can't write where: { id, sponsorId } on the update itself. The pattern is:
+1. findFirst({ where: { id, sponsorId } }) to verify ownership,
+2. 404 if it's missing or not mine,
+3. then update/delete by id.
+
+PUT specifcis : 
+- Partial update with spreading of ...(field !== undefined && { field }). Basically only the fields actually sent get changed. (ex: a campaign can be renamed without resending everything)
+
+- Validation of provided fields : ex: name must be non-empty, budget a positive number, status must be a valid CampaignStatus enum if sent.
+
+- Ownership is as always IMMUTABLE, but there's a subtle diff between create and update: on CREATE i set sponsorId FROM the session (a new row needs an owner), but on UPDATE i just leave sponsorId OUT of the data object entirely. So even if the client sneaks a sponsorId into the body it's ignored and the campaign stays with its original owner. (Proved it: I PUT a TechStartup sponsorId onto Acme's campaign, the name changed but the sponsorId stayed Acme's.)
+
+- Returns 200+ the updated record
+
+DELETE specifics: 
+- Same ownership verif
+- Returns 204 but No Content
+
+### Part 2
+
+Here I'm going to deal with PUT/DELETE for ad-slots.
+
+Same pattern as campaigns, but with publisherId instead of sponsorId. However, the ad-slots router keeps public browse routes, PUT/DELETE get requireAuth PER ROUTE (unlike campaigns which has it on the WHOLE router)
+
+- Same ownership immutability: publisherId is left out of the update data, so a sneaky publisherId in the body is ignored (tested it with "publisherId":"HACK" and it got ignored).
+- Validation on the provided fields: valid enum type, positive basePrice, boolean isAvailable.
+
+- PUT → 200, DELETE → 204.
+- Bonus: the DELETE endpoint cleaned up the leftover "Test Slot" from Ch3 testing (publisher's slot count went 5 to 4).
+
+
+### Testing both resources
+
+Ran the full matrix on campaigns + ad-slots: no auth -> 401, wrong role -> 403, own -> 200/204, invalid input -> 400, someone else's -> 404, ownership injection -> ignored.
+
+Lesson learnt: my first cross-owner 404 test was a FALSE POSITIVE - a shell bug left the id empty, so the 404 came from hitting a non-existent route, not from ownership. I re-ran it against a real other-owner slot AND confirmed that slot still returns 200 publicly, which proves the 404 meant "denied", not "gone". So i should always double-check that a test is actually exercising what i think it is.
+
+---
