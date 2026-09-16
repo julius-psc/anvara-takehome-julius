@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
@@ -6,6 +7,12 @@ import { getUserRole } from '@/lib/auth-helpers';
 import { AdSlotList } from './components/ad-slot-list';
 import { AdSlotListSkeleton } from './components/ad-slot-list-skeleton';
 import { AdSlotFormModal } from './components/ad-slot-form-modal';
+
+export const metadata: Metadata = {
+  title: 'Ad slots',
+  description: 'Manage your advertising inventory on Anvara.',
+  robots: { index: false, follow: false },
+};
 
 export default async function PublisherDashboard() {
   const session = await auth.api.getSession({

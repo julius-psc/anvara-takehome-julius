@@ -73,3 +73,20 @@ export async function getMarketplaceAdSlots(): Promise<AdSlot[]> {
 
   return res.json() as Promise<AdSlot[]>;
 }
+
+/**
+ * Fetch a single public ad slot by id (marketplace detail / SEO metadata).
+ * Returns null when the slot does not exist so generateMetadata can fall back.
+ */
+export async function getMarketplaceAdSlot(id: string): Promise<AdSlot | null> {
+  const res = await fetch(`${API_URL}/api/ad-slots/${id}`, {
+    next: { revalidate: 60 },
+  });
+
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    throw new Error(`Failed to load ad slot (${res.status})`);
+  }
+
+  return res.json() as Promise<AdSlot>;
+}

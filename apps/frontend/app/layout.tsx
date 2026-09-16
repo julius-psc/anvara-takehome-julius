@@ -5,27 +5,56 @@ import { Toaster } from 'sonner';
 import './globals.css';
 import { Nav } from './components/nav';
 
+const siteUrl = process.env.BETTER_AUTH_URL || 'http://localhost:3847';
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
     default: 'Anvara — Sponsorship Marketplace',
     template: '%s · Anvara',
   },
-  description: 'The marketplace connecting sponsors with publishers.',
+  description:
+    'Anvara connects sponsors with publishers. Browse transparent ad inventory, set campaign budgets, and fill placements in one marketplace.',
+  applicationName: 'Anvara',
+  keywords: [
+    'sponsorship marketplace',
+    'ad slots',
+    'publishers',
+    'sponsors',
+    'campaigns',
+    'media buying',
+  ],
+  authors: [{ name: 'Anvara' }],
+  creator: 'Anvara',
   openGraph: {
     title: 'Anvara — Sponsorship Marketplace',
-    description: 'The marketplace connecting sponsors with publishers.',
+    description:
+      'Book premium placements or list your inventory. One marketplace for sponsors and publishers.',
     type: 'website',
     siteName: 'Anvara',
+    locale: 'en_US',
+    url: siteUrl,
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Anvara — Sponsorship Marketplace',
-    description: 'The marketplace connecting sponsors with publishers.',
+    description:
+      'Book premium placements or list your inventory. One marketplace for sponsors and publishers.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  alternates: {
+    canonical: '/',
   },
 };
 
 export const viewport: Viewport = {
-  themeColor: '#fbfbfa',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#fbfbfa' },
+    { media: '(prefers-color-scheme: dark)', color: '#141414' },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
