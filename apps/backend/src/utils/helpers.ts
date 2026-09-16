@@ -51,12 +51,6 @@ export const buildFilters = (query: Record<string, string>, allowedFields: strin
   return filters;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const DEPRECATED_CONFIG = {
-  apiVersion: 'v1',
-  timeout: 5000,
-};
-
 // Clamp a number into the [min, max] range.
 export function clampValue(value: number, min: number, max: number): number {
   if (value < min) return min;

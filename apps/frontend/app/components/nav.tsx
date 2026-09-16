@@ -11,19 +11,25 @@ export function Nav() {
   const user = session?.user;
   const [role, setRole] = useState<UserRole>(null);
 
-  // TODO: Convert to server component and fetch role server-side
-  // Fetch user role from backend when user is logged in
+  // Fetch the user's role from the backend when logged in. State is only set in
+  // the async callbacks (guarded by `active`) to avoid synchronous setState in
+  // the effect body, and to ignore a response that resolves after unmount.
   useEffect(() => {
-    if (user?.id) {
-      fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291'}/api/auth/role/${user.id}`
-      )
-        .then((res) => res.json())
-        .then((data) => setRole(data.role))
-        .catch(() => setRole(null));
-    } else {
-      setRole(null);
-    }
+    if (!user?.id) return;
+
+    let active = true;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291'}/api/auth/role/${user.id}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (active) setRole(data.role);
+      })
+      .catch(() => {
+        if (active) setRole(null);
+      });
+
+    return () => {
+      active = false;
+    };
   }, [user?.id]);
 
   // TODO: Add active link styling using usePathname() from next/navigation
