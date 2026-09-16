@@ -54,3 +54,22 @@ export async function getPublisherAdSlots(): Promise<AdSlot[]> {
 
   return res.json() as Promise<AdSlot[]>;
 }
+
+/**
+ * Fetch all publicly listed ad slots for the marketplace (server-side).
+ *
+ * Hits the public /api/ad-slots endpoint, so no auth cookie is required — this
+ * is data anyone can browse. no-store keeps availability fresh as slots get
+ * booked/unbooked. Throws on failure so the route's error boundary can render.
+ */
+export async function getMarketplaceAdSlots(): Promise<AdSlot[]> {
+  const res = await fetch(`${API_URL}/api/ad-slots`, {
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to load marketplace (${res.status})`);
+  }
+
+  return res.json() as Promise<AdSlot[]>;
+}

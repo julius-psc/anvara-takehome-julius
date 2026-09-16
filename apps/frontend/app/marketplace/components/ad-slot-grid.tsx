@@ -1,40 +1,17 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { getAdSlots } from '@/lib/api';
-import type { AdSlot } from '@/lib/types';
+import { getMarketplaceAdSlots } from '@/lib/data';
+import { Badge } from '@/app/components/badge';
+import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
 
-const typeColors: Record<string, string> = {
-  DISPLAY: 'bg-blue-100 text-blue-700',
-  VIDEO: 'bg-red-100 text-red-700',
-  NEWSLETTER: 'bg-purple-100 text-purple-700',
-  PODCAST: 'bg-orange-100 text-orange-700',
-};
-
-export function AdSlotGrid() {
-  const [adSlots, setAdSlots] = useState<AdSlot[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    getAdSlots()
-      .then(setAdSlots)
-      .catch(() => setError('Failed to load ad slots'))
-      .finally(() => setLoading(false));
-  }, []);
-
-  if (loading) {
-    return <div className="py-12 text-center text-[--color-muted]">Loading marketplace...</div>;
-  }
-
-  if (error) {
-    return <div className="rounded border border-red-200 bg-red-50 p-4 text-red-600">{error}</div>;
-  }
+// Async Server Component: fetches the public marketplace listings on the server
+// and streams in via the <Suspense> boundary in page.tsx. A failed fetch throws
+// and bubbles to the route's error boundary (error.tsx).
+export async function AdSlotGrid() {
+  const adSlots = await getMarketplaceAdSlots();
 
   if (adSlots.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[--color-border] p-12 text-center text-[--color-muted]">
+      <div className="rounded-xl border border-dashed border-(--color-border-strong) bg-(--color-surface) px-6 py-16 text-center text-sm text-(--color-muted)">
         No ad slots available at the moment.
       </div>
     );
@@ -42,41 +19,52 @@ export function AdSlotGrid() {
 
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-      {adSlots.map((slot) => (
-        <Link
-          key={slot.id}
-          href={`/marketplace/${slot.id}`}
-          className="block rounded-lg border border-[--color-border] p-4 transition-shadow hover:shadow-md"
-        >
-          <div className="mb-2 flex items-start justify-between">
-            <h3 className="font-semibold">{slot.name}</h3>
-            <span
-              className={`rounded px-2 py-0.5 text-xs ${typeColors[slot.type] || 'bg-gray-100'}`}
-            >
-              {slot.type}
-            </span>
-          </div>
+      {adSlots.map((slot) => {
+        const meta = AD_SLOT_TYPE_META[slot.type];
+        const TypeIcon = meta?.icon;
+        return (
+          <Link
+            key={slot.id}
+            href={`/marketplace/${slot.id}`}
+            className="block rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm) transition-shadow hover:shadow-(--shadow-md)"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <h3 className="text-balance font-medium leading-snug text-(--color-foreground)">
+                {slot.name}
+              </h3>
+              <Badge tone={meta?.tone ?? 'neutral'}>
+                {TypeIcon && <TypeIcon size={13} stroke={1.8} />}
+                {meta?.label ?? slot.type}
+              </Badge>
+            </div>
 
-          {slot.publisher && (
-            <p className="mb-2 text-sm text-[--color-muted]">by {slot.publisher.name}</p>
-          )}
+            {slot.publisher && (
+              <p className="mt-1 text-sm text-(--color-muted)">by {slot.publisher.name}</p>
+            )}
 
-          {slot.description && (
-            <p className="mb-3 text-sm text-[--color-muted] line-clamp-2">{slot.description}</p>
-          )}
+            {slot.description && (
+              <p className="mt-1.5 line-clamp-2 text-pretty text-sm text-(--color-muted)">
+                {slot.description}
+              </p>
+            )}
 
-          <div className="flex items-center justify-between">
-            <span
-              className={`text-sm ${slot.isAvailable ? 'text-green-600' : 'text-[--color-muted]'}`}
-            >
-              {slot.isAvailable ? 'Available' : 'Booked'}
-            </span>
-            <span className="font-semibold text-[--color-primary]">
-              ${Number(slot.basePrice).toLocaleString()}/mo
-            </span>
-          </div>
-        </Link>
-      ))}
+            <div className="mt-4 flex items-end justify-between">
+              <span className="inline-flex items-center gap-1.5 text-sm">
+                <span
+                  className={`h-1.5 w-1.5 rounded-full ${slot.isAvailable ? 'bg-(--color-success)' : 'bg-(--color-subtle)'}`}
+                />
+                <span className={slot.isAvailable ? 'text-(--color-success)' : 'text-(--color-muted)'}>
+                  {slot.isAvailable ? 'Available' : 'Booked'}
+                </span>
+              </span>
+              <span className="font-numeric text-lg font-semibold">
+                ${Number(slot.basePrice).toLocaleString()}
+                <span className="text-sm font-normal text-(--color-muted)">/mo</span>
+              </span>
+            </div>
+          </Link>
+        );
+      })}
     </div>
   );
 }
