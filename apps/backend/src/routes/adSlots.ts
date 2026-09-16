@@ -139,19 +139,19 @@ router.post('/', requireAuth, async (req: AuthRequest, res: Response) => {
   }
 });
 
-// POST /api/ad-slots/:id/book - Book an ad slot (simplified booking flow)
-// SECURITY TODO: this is still unauthenticated and trusts sponsorId from the body.
-// It should require an authenticated sponsor and derive sponsorId from the session.
-// Left as-is for now because the booking model (Placement creation) is a stub.
-router.post('/:id/book', async (req: Request, res: Response) => {
+// POST /api/ad-slots/:id/book - book a slot as the authenticated sponsor.
+// sponsorId is derived from the session, never trusted from the body; a
+// non-sponsor (or logged-out) caller gets 403/401 from requireAuth.
+router.post('/:id/book', requireAuth, async (req: AuthRequest, res: Response) => {
+  const sponsorId = req.user?.sponsorId;
+  if (!sponsorId) {
+    res.status(403).json({ error: 'Only sponsors can book ad slots' });
+    return;
+  }
+
   try {
     const id = getParam(req.params.id);
-    const { sponsorId, message } = req.body;
-
-    if (!sponsorId) {
-      res.status(400).json({ error: 'sponsorId is required' });
-      return;
-    }
+    const { message } = req.body;
 
     // Check if slot exists and is available
     const adSlot = await prisma.adSlot.findUnique({
@@ -178,8 +178,9 @@ router.post('/:id/book', async (req: Request, res: Response) => {
       },
     });
 
-    // In a real app, you'd create a Placement record here
-    // For now, we just mark it as booked
+    // Simplified booking: we flip availability rather than create a Placement
+    // (that model is still a stub). The security-critical part — who is booking —
+    // is now the authenticated sponsor from the session, not a client-supplied id.
     console.log(`Ad slot ${id} booked by sponsor ${sponsorId}. Message: ${message || 'None'}`);
 
     res.json({
@@ -193,13 +194,24 @@ router.post('/:id/book', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/ad-slots/:id/unbook - Reset ad slot to available (for testing)
-router.post('/:id/unbook', async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
+// POST /api/ad-slots/:id/unbook - reset a slot back to available.
+// Only the owning publisher may do this — it's editing their own inventory's
+// availability, so it uses the same ownership check as PUT/DELETE.
+router.post('/:id/unbook', requireAuth, async (req: AuthRequest, res: Response) => {
+  const publisherId = req.user?.publisherId;
+  if (!publisherId) {
+    res.status(403).json({ error: 'Only publishers can reset their ad slots' });
+    return;
+  }
 
-    if (typeof id !== 'string') {
-      return res.status(400).json({ error: 'Invalid ID' });
+  try {
+    const id = getParam(req.params.id);
+
+    // Verify ownership before mutating (update() only matches on the unique id).
+    const existing = await prisma.adSlot.findFirst({ where: { id, publisherId } });
+    if (!existing) {
+      res.status(404).json({ error: 'Ad slot not found' });
+      return;
     }
 
     const updatedSlot = await prisma.adSlot.update({

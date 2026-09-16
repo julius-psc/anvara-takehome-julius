@@ -6,9 +6,17 @@ const app: Application = express();
 const PORT = process.env.BACKEND_PORT || 4291;
 
 // Middleware
-// FIXME: CORS is configured with defaults - for production, specify allowed origins
+// CORS: reflect the known frontend origin and allow credentials so the browser
+// sends the Better Auth session cookie on cross-origin requests (e.g. booking).
+// A wildcard origin can't be combined with credentials, so we pin it.
 // TODO: Add rate limiting middleware to prevent abuse (e.g., express-rate-limit)
-app.use(cors());
+const FRONTEND_ORIGIN = process.env.BETTER_AUTH_URL || 'http://localhost:3847';
+app.use(
+  cors({
+    origin: FRONTEND_ORIGIN,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Mount all API routes
