@@ -140,7 +140,7 @@ export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
         onClose={closeModal}
         title={selectedLive?.name ?? 'Ad slot'}
         hideTitle
-        panelClassName="relative z-10 w-full max-w-lg rounded-xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-md) outline-none"
+        panelClassName="relative z-10 max-h-[90dvh] w-full overflow-y-auto rounded-t-2xl border border-(--color-border) bg-(--color-surface) p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-(--shadow-md) outline-none sm:max-w-lg sm:rounded-xl sm:pb-6"
       >
         {selectedLive && (
           <AdSlotDetail

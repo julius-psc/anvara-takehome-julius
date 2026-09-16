@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { IconX } from '@tabler/icons-react';
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
+// Mirrors --ease-drawer: a decisive slide for the mobile bottom sheet.
+const EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
 
 interface ModalProps {
   open: boolean;
@@ -34,6 +36,20 @@ export function Modal({
   const restoreFocusRef = useRef<HTMLElement | null>(null);
   const titleId = useId();
   const reduceMotion = useReducedMotion();
+
+  // Below the `sm` breakpoint the dialog becomes a bottom sheet (slide up),
+  // above it a centered dialog (scale in). Lazy-read so the first paint is
+  // correct without a synchronous setState in an effect; the modal only renders
+  // its content when open (post-hydration), so there's no SSR mismatch.
+  const [isSheet, setIsSheet] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    const sync = () => setIsSheet(mq.matches);
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -69,12 +85,29 @@ export function Modal({
     restoreFocusRef.current = null;
   };
 
-  const transition = reduceMotion
-    ? { duration: 0.15, ease: EASE_OUT }
-    : { duration: 0.25, ease: EASE_OUT };
+  const transition = {
+    duration: reduceMotion ? 0.15 : isSheet ? 0.35 : 0.25,
+    ease: isSheet ? EASE_DRAWER : EASE_OUT,
+  };
+
+  // Sheet slides up from the bottom; dialog scales in. Reduced motion just fades
+  // (the overlay handles the fade) with no panel movement.
+  const panelMotion = reduceMotion
+    ? { initial: false as const, animate: {}, exit: undefined }
+    : isSheet
+      ? {
+          initial: { transform: 'translateY(100%)' },
+          animate: { transform: 'translateY(0%)' },
+          exit: { transform: 'translateY(100%)' },
+        }
+      : {
+          initial: { transform: 'scale(0.96)' },
+          animate: { transform: 'scale(1)' },
+          exit: { transform: 'scale(0.96)' },
+        };
 
   const defaultPanelClass =
-    'relative z-10 w-full max-w-md rounded-xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-md) outline-none';
+    'relative z-10 max-h-[90dvh] w-full overflow-y-auto rounded-t-2xl border border-(--color-border) bg-(--color-surface) p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-(--shadow-md) outline-none sm:max-w-md sm:rounded-xl sm:pb-6';
 
   const panelClass = panelClassName
     ? panelClassName.replace(/\banimate-modal-in\b/g, '').replace(/\s+/g, ' ').trim()
@@ -85,7 +118,7 @@ export function Modal({
       {open ? (
         <motion.div
           key="modal"
-          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -102,14 +135,17 @@ export function Modal({
             aria-modal="true"
             aria-labelledby={titleId}
             tabIndex={-1}
-            initial={
-              reduceMotion ? false : { transform: 'scale(0.96)' }
-            }
-            animate={{ transform: 'scale(1)' }}
-            exit={reduceMotion ? undefined : { transform: 'scale(0.96)' }}
+            initial={panelMotion.initial}
+            animate={panelMotion.animate}
+            exit={panelMotion.exit}
             transition={transition}
             className={`${panelClass} origin-center`}
           >
+            {/* Grab handle affordance — bottom sheet on mobile only. */}
+            <div
+              aria-hidden
+              className="mx-auto mb-4 h-1 w-9 rounded-full bg-(--color-border) sm:hidden"
+            />
             {showClose && (
               <button
                 type="button"
