@@ -1,62 +1,62 @@
 import type { Campaign } from '@/lib/types';
+import { Badge, type BadgeTone } from '@/app/components/badge';
 import { CampaignFormModal } from './campaign-form-modal';
 import { DeleteCampaignButton } from './delete-campaign-button';
 
-interface CampaignCardProps {
-  campaign: Campaign;
-}
-
-const statusColors: Record<string, string> = {
-  DRAFT: 'bg-gray-100 text-gray-600',
-  ACTIVE: 'bg-green-100 text-green-700',
-  PAUSED: 'bg-yellow-100 text-yellow-700',
-  COMPLETED: 'bg-blue-100 text-blue-700',
+const statusTone: Record<string, BadgeTone> = {
+  DRAFT: 'neutral',
+  PENDING_REVIEW: 'warning',
+  APPROVED: 'info',
+  ACTIVE: 'success',
+  PAUSED: 'warning',
+  COMPLETED: 'info',
+  CANCELLED: 'danger',
 };
 
-export function CampaignCard({ campaign }: CampaignCardProps) {
-  const progress =
-    campaign.budget > 0 ? (Number(campaign.spent) / Number(campaign.budget)) * 100 : 0;
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+export function CampaignCard({ campaign }: { campaign: Campaign }) {
+  const budget = Number(campaign.budget);
+  const spent = Number(campaign.spent);
+  const progress = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
 
   return (
-    <div className="rounded-lg border border-[--color-border] p-4">
-      <div className="mb-2 flex items-start justify-between">
-        <h3 className="font-semibold">{campaign.name}</h3>
-        <span
-          className={`rounded px-2 py-0.5 text-xs ${statusColors[campaign.status] || 'bg-gray-100'}`}
-        >
-          {campaign.status}
-        </span>
+    <div className="flex flex-col rounded-xl border border-[--color-border] bg-[--color-surface] p-5 shadow-[--shadow-sm] transition-all duration-200 hover:border-[--color-border-strong] hover:shadow-[--shadow-md]">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="font-medium leading-snug text-[--color-foreground]">{campaign.name}</h3>
+        <Badge tone={statusTone[campaign.status] ?? 'neutral'}>
+          {campaign.status.toLowerCase().replace('_', ' ')}
+        </Badge>
       </div>
 
       {campaign.description && (
-        <p className="mb-3 text-sm text-[--color-muted] line-clamp-2">{campaign.description}</p>
+        <p className="mt-1.5 line-clamp-2 text-sm text-[--color-muted]">{campaign.description}</p>
       )}
 
-      <div className="mb-2">
-        <div className="flex justify-between text-sm">
-          <span className="text-[--color-muted]">Budget</span>
-          <span>
-            ${Number(campaign.spent).toLocaleString()} / ${Number(campaign.budget).toLocaleString()}
-          </span>
+      <div className="mt-4">
+        <div className="flex items-baseline justify-between text-sm">
+          <span className="font-numeric font-medium">${spent.toLocaleString()}</span>
+          <span className="font-numeric text-[--color-muted]">of ${budget.toLocaleString()}</span>
         </div>
-        <div className="mt-1 h-1.5 rounded-full bg-gray-200">
+        <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-[--color-border]">
           <div
-            className="h-1.5 rounded-full bg-[--color-primary]"
-            style={{ width: `${Math.min(progress, 100)}%` }}
+            className="h-full rounded-full bg-[--color-accent] transition-[width] duration-500"
+            style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
-      <div className="text-xs text-[--color-muted]">
-        {new Date(campaign.startDate).toLocaleDateString()} -{' '}
-        {new Date(campaign.endDate).toLocaleDateString()}
-      </div>
+      <p className="mt-3 font-numeric text-xs text-[--color-muted]">
+        {formatDate(campaign.startDate)} – {formatDate(campaign.endDate)}
+      </p>
 
-      <div className="mt-3 flex items-center justify-between border-t border-[--color-border] pt-2">
+      <div className="mt-4 flex items-center justify-between border-t border-[--color-border] pt-3">
         <CampaignFormModal
           campaign={campaign}
           triggerLabel="Edit"
-          triggerClassName="rounded px-3 py-1.5 text-sm text-[--color-primary] hover:bg-gray-50"
+          triggerClassName="rounded-md px-2.5 py-1.5 text-sm font-medium text-[--color-muted] transition-colors hover:bg-[--color-surface-hover] hover:text-[--color-foreground]"
         />
         <DeleteCampaignButton id={campaign.id} />
       </div>
