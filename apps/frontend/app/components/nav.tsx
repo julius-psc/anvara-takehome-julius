@@ -39,9 +39,18 @@ export function Nav() {
     ...(role === 'publisher' ? [{ href: '/dashboard/publisher', label: 'My Ad Slots' }] : []),
   ];
 
+  // Home hero is full-bleed; match its left inset so the logo lines up with the copy.
+  const isHome = pathname === '/';
+
   return (
     <header className="sticky top-0 z-40 border-b border-(--color-border) bg-(--color-background)/80 backdrop-blur-md">
-      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+      <nav
+        className={
+          isHome
+            ? 'flex h-14 w-full items-center justify-between px-4 sm:px-6 lg:px-12 xl:px-16'
+            : 'mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6'
+        }
+      >
         <div className="flex items-center gap-6">
           <Link href="/" className="text-[15px] font-semibold tracking-tight">
             Anvara
