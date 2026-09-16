@@ -25,8 +25,8 @@ router.get('/role/:userId', async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
 
-    if (typeof userId !== 'string') { 
-      return res.status(400).json({ error: 'Invalid ID' })
+    if (typeof userId !== 'string') {
+      return res.status(400).json({ error: 'Invalid ID' });
     }
 
     // Check if user is a sponsor

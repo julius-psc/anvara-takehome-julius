@@ -24,7 +24,7 @@ export interface AuthRequest extends Request {
 export async function requireAuth(
   req: AuthRequest,
   res: Response,
-  next: NextFunction,
+  next: NextFunction
 ): Promise<void> {
   try {
     const session = await auth.api.getSession({
