@@ -245,4 +245,50 @@ Ran the full matrix on campaigns + ad-slots: no auth -> 401, wrong role -> 403, 
 
 Lesson learnt: my first cross-owner 404 test was a FALSE POSITIVE - a shell bug left the id empty, so the 404 came from hitting a non-existent route, not from ownership. I re-ran it against a real other-owner slot AND confirmed that slot still returns 200 publicly, which proves the 404 meant "denied", not "gone". So i should always double-check that a test is actually exercising what i think it is.
 
+Done :-))))
+
 ---
+
+## Challenge 5
+
+Setup Done: installed zod (v4) + react-hook-form + @hookform/resolvers, and created apps/frontend/lib/schemas.ts with shared campaignSchema and adSlotSchema.
+
+### Part 1
+
+Let's setup the Server Actions for campaigns with create/update and delete.
+
+Here i create an actions.ts with 'use server' for the three Server Actions. For each,
+
+- re-validate with campaignSchema.safeParse because I should never trust the client, the server should be the gatekeeper.
+- it forwards the cookie to the backend so requireAuth passes
+- calls revalidatePath('/dashboard/sponsor') so that the server-rendered list refreshes after the change
+- returns a structured { success | error, fieldErrors }
+
+### Part 2
+
+Here we are using React Hook Form +  zodResolver(campaignSchema) so that the same schema validates on the client. One schema, but in two places.
+
+I implemented clean number typing, avoiding a string/number coercion clash
+
+Submit -> call the action -> success closes the modal. otherwise, failure shows a banner and maps fieldErrors back to their respective inputs.
+
+One modal is used for creating/editing campaigns.
+
+### Part 3
+
+Now let's deal with the publisher dashboard. However it currently uses 'use client' and useEffect + useState. So I need to refactor it to stream Server Components, using the new /api/ad-slots/mine from Challenge 3.
+
+Oh yeah and there's a little bug that I fixed:  lib/types.ts's AdSlot union was missing 'NATIVE'.
+
+Only error.tsx should be client. 
+
+### Part 4
+
+Now that the publisher dashboard is fully server-rendered and streaming, let's build the ad-slot actions + forms, so that it mirrors the sponsor dashb. 
+
+I started by the shared action helpers into one module (lib/action-utils.ts used by both dashboards) and then the ad-slot form UI with RHF/ZOd forms. 
+
+Amazing, after testing it all seems to work perfectly !!
+
+So i made a quick design decision: the docs suggest to use  useFormState/useFormStatus but I decided to use React Hook Form and Zod instead because they both solve the same problem, so it's redundant. RHF owns client-side form state + validation and gives isSubmitting for the pending state. The Server Action re-validates with the same Zod schema (so basically client= UX and server= the real gate). 
+
