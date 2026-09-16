@@ -9,6 +9,7 @@ import { useViewPreference } from '@/lib/use-view-preference';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
 import { Pagination, usePagination } from '@/app/components/pagination';
 import { EmptyState } from '@/app/components/empty-state';
+import { AnimatedListRegion } from '@/app/components/animated-list-region';
 import { AdSlotDetail } from '../[id]/components/ad-slot-detail';
 import { MarketplaceCard } from './marketplace-card';
 import { MarketplaceRow } from './marketplace-row';
@@ -110,28 +111,28 @@ export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
         />
       </div>
 
-      {shown.length === 0 ? (
-        <EmptyState
-          title="No matching ad slots"
-          description="Try another availability or type filter to browse more placements."
-        />
-      ) : (
-        <>
-          {view === 'card' ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {pageItems.map((slot) => (
-                <MarketplaceCard key={slot.id} adSlot={slot} onOpen={setSelected} />
-              ))}
-            </div>
-          ) : (
-            <ul className="divide-y divide-(--color-border) rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm) [&>li:first-child]:rounded-t-xl [&>li:last-child]:rounded-b-xl">
-              {pageItems.map((slot) => (
-                <MarketplaceRow key={slot.id} adSlot={slot} onOpen={setSelected} />
-              ))}
-            </ul>
-          )}
-          <Pagination page={page} pageSize={pageSize} total={shown.length} onPageChange={setPage} />
-        </>
+      <AnimatedListRegion regionKey={`${status}:${type}:${view}:${page}`}>
+        {shown.length === 0 ? (
+          <EmptyState
+            title="No matching ad slots"
+            description="Try another availability or type filter to browse more placements."
+          />
+        ) : view === 'card' ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {pageItems.map((slot) => (
+              <MarketplaceCard key={slot.id} adSlot={slot} onOpen={setSelected} />
+            ))}
+          </div>
+        ) : (
+          <ul className="divide-y divide-(--color-border) rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm) [&>li:first-child]:rounded-t-xl [&>li:last-child]:rounded-b-xl">
+            {pageItems.map((slot) => (
+              <MarketplaceRow key={slot.id} adSlot={slot} onOpen={setSelected} />
+            ))}
+          </ul>
+        )}
+      </AnimatedListRegion>
+      {shown.length > 0 && (
+        <Pagination page={page} pageSize={pageSize} total={shown.length} onPageChange={setPage} />
       )}
 
       <Modal
@@ -139,8 +140,7 @@ export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
         onClose={closeModal}
         title={selectedLive?.name ?? 'Ad slot'}
         hideTitle
-        showClose
-        panelClassName="relative z-10 w-full max-w-md animate-modal-in rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-md) outline-none"
+        panelClassName="relative z-10 w-full max-w-lg rounded-xl border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-md) outline-none"
       >
         {selectedLive && (
           <AdSlotDetail
@@ -148,6 +148,7 @@ export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
             id={selectedLive.id}
             initialSlot={selectedLive}
             variant="modal"
+            onClose={closeModal}
             onAvailabilityChange={(isAvailable) => {
               setOverrides((prev) => ({ ...prev, [selectedLive.id]: isAvailable }));
             }}

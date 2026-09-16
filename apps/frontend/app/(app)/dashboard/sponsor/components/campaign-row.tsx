@@ -56,8 +56,10 @@ export function CampaignRow({ campaign }: { campaign: Campaign }) {
           aria-label={spendLabel}
         >
           <div
-            className="h-full rounded-full bg-(--color-accent) transition-[width] duration-300 ease-out"
-            style={{ width: `${spendPct}%` }}
+            className="progress-fill h-full w-full rounded-full bg-(--color-accent)"
+            style={{
+              transform: `scaleX(${Math.max(0, Math.min(spendPct / 100, 1))})`,
+            }}
           />
         </div>
         <div

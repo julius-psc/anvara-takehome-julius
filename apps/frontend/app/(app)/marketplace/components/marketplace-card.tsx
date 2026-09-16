@@ -23,7 +23,7 @@ export function MarketplaceCard({ adSlot, onOpen }: Props) {
         e.preventDefault();
         onOpen(adSlot);
       }}
-      className={`block rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm) transition-[box-shadow,transform,opacity] duration-150 ease-out hover:shadow-(--shadow-md) active:scale-[0.96] ${
+      className={`pressable block rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm) transition-[box-shadow,transform,opacity] duration-150 ease-out hover:shadow-(--shadow-md) ${
         dimmed ? 'opacity-60 hover:opacity-80' : ''
       }`}
     >

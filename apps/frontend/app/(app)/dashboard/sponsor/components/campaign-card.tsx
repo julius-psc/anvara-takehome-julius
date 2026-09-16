@@ -8,7 +8,14 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-export function CampaignCard({ campaign }: { campaign: Campaign }) {
+export function CampaignCard({
+  campaign,
+  static: isStatic = false,
+}: {
+  campaign: Campaign;
+  /** Hide edit/delete actions — used in decorative previews. */
+  static?: boolean;
+}) {
   const budget = Number(campaign.budget);
   const spent = Number(campaign.spent);
   const spendPct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
@@ -25,9 +32,11 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
               {formatStatusLabel(campaign.status)}
             </Badge>
           </div>
-          <div className="flex h-7 shrink-0 items-center">
-            <CampaignActions campaign={campaign} />
-          </div>
+          {!isStatic ? (
+            <div className="flex h-7 shrink-0 items-center">
+              <CampaignActions campaign={campaign} />
+            </div>
+          ) : null}
         </div>
 
         {campaign.description ? (
@@ -57,8 +66,10 @@ export function CampaignCard({ campaign }: { campaign: Campaign }) {
             aria-label={`${Math.round(spendPct)}% of budget spent`}
           >
             <div
-              className="h-full rounded-full bg-(--color-accent) transition-[width] duration-300 ease-out"
-              style={{ width: `${spendPct}%` }}
+              className="progress-fill h-full w-full rounded-full bg-(--color-accent)"
+              style={{
+                transform: `scaleX(${Math.max(0, Math.min(spendPct / 100, 1))})`,
+              }}
             />
           </div>
         </div>

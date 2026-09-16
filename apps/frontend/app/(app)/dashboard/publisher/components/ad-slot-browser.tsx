@@ -8,6 +8,7 @@ import { useViewPreference } from '@/lib/use-view-preference';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
 import { Pagination, usePagination } from '@/app/components/pagination';
 import { EmptyState } from '@/app/components/empty-state';
+import { AnimatedListRegion } from '@/app/components/animated-list-region';
 import { AdSlotCard } from './ad-slot-card';
 import { AdSlotRow } from './ad-slot-row';
 
@@ -96,28 +97,28 @@ export function AdSlotBrowser({ adSlots }: { adSlots: AdSlot[] }) {
         />
       </div>
 
-      {shown.length === 0 ? (
-        <EmptyState
-          title="No matching ad slots"
-          description="Try a different availability or type filter to see more of your inventory."
-        />
-      ) : (
-        <>
-          {view === 'card' ? (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {pageItems.map((slot) => (
-                <AdSlotCard key={slot.id} adSlot={slot} />
-              ))}
-            </div>
-          ) : (
-            <ul className="divide-y divide-(--color-border) rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm) [&>li:first-child]:rounded-t-xl [&>li:last-child]:rounded-b-xl">
-              {pageItems.map((slot) => (
-                <AdSlotRow key={slot.id} adSlot={slot} />
-              ))}
-            </ul>
-          )}
-          <Pagination page={page} pageSize={pageSize} total={shown.length} onPageChange={setPage} />
-        </>
+      <AnimatedListRegion regionKey={`${status}:${type}:${view}:${page}`}>
+        {shown.length === 0 ? (
+          <EmptyState
+            title="No matching ad slots"
+            description="Try a different availability or type filter to see more of your inventory."
+          />
+        ) : view === 'card' ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {pageItems.map((slot) => (
+              <AdSlotCard key={slot.id} adSlot={slot} />
+            ))}
+          </div>
+        ) : (
+          <ul className="divide-y divide-(--color-border) rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm) [&>li:first-child]:rounded-t-xl [&>li:last-child]:rounded-b-xl">
+            {pageItems.map((slot) => (
+              <AdSlotRow key={slot.id} adSlot={slot} />
+            ))}
+          </ul>
+        )}
+      </AnimatedListRegion>
+      {shown.length > 0 && (
+        <Pagination page={page} pageSize={pageSize} total={shown.length} onPageChange={setPage} />
       )}
     </div>
   );

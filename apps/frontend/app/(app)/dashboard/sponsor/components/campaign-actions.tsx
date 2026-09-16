@@ -81,7 +81,7 @@ export function CampaignActions({ campaign }: { campaign: Campaign }) {
           <button
             type="button"
             onClick={() => setConfirmingDelete(false)}
-            className="rounded-lg px-4 py-2 text-sm font-medium text-(--color-muted) transition-colors hover:bg-(--color-surface-hover) hover:text-(--color-foreground)"
+            className="pressable rounded-lg px-4 py-2 text-sm font-medium text-(--color-muted) transition-colors hover:bg-(--color-surface-hover) hover:text-(--color-foreground)"
           >
             Cancel
           </button>
@@ -89,7 +89,7 @@ export function CampaignActions({ campaign }: { campaign: Campaign }) {
             type="button"
             onClick={onDelete}
             disabled={pending}
-            className="rounded-lg bg-(--color-error) px-4 py-2 text-sm font-semibold text-(--color-on-primary) transition-colors hover:bg-(--color-error-hover) disabled:opacity-50"
+            className="pressable rounded-lg bg-(--color-error) px-4 py-2 text-sm font-semibold text-(--color-on-primary) transition-colors hover:bg-(--color-error-hover) disabled:opacity-50"
           >
             {pending ? 'Deleting…' : 'Delete'}
           </button>

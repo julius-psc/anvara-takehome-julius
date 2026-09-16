@@ -3,7 +3,14 @@ import { Badge } from '@/app/components/badge';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
 import { AdSlotActions } from './ad-slot-actions';
 
-export function AdSlotCard({ adSlot }: { adSlot: AdSlot }) {
+export function AdSlotCard({
+  adSlot,
+  static: isStatic = false,
+}: {
+  adSlot: AdSlot;
+  /** Hide edit/delete actions — used in decorative previews. */
+  static?: boolean;
+}) {
   const meta = AD_SLOT_TYPE_META[adSlot.type];
   const TypeIcon = meta?.icon;
 
@@ -20,9 +27,11 @@ export function AdSlotCard({ adSlot }: { adSlot: AdSlot }) {
               {meta?.label ?? adSlot.type}
             </Badge>
           </div>
-          <div className="flex h-7 shrink-0 items-center">
-            <AdSlotActions adSlot={adSlot} />
-          </div>
+          {!isStatic ? (
+            <div className="flex h-7 shrink-0 items-center">
+              <AdSlotActions adSlot={adSlot} />
+            </div>
+          ) : null}
         </div>
 
         {adSlot.description ? (
