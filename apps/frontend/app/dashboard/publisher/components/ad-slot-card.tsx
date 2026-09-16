@@ -1,48 +1,48 @@
 import type { AdSlot } from '@/lib/types';
+import { Badge, type BadgeTone } from '@/app/components/badge';
 import { AdSlotFormModal } from './ad-slot-form-modal';
 import { DeleteAdSlotButton } from './delete-ad-slot-button';
 
-interface AdSlotCardProps {
-  adSlot: AdSlot;
-}
-
-const typeColors: Record<string, string> = {
-  DISPLAY: 'bg-blue-100 text-blue-700',
-  VIDEO: 'bg-red-100 text-red-700',
-  NEWSLETTER: 'bg-purple-100 text-purple-700',
-  PODCAST: 'bg-orange-100 text-orange-700',
+const typeTone: Record<string, BadgeTone> = {
+  DISPLAY: 'info',
+  VIDEO: 'danger',
+  NATIVE: 'neutral',
+  NEWSLETTER: 'warning',
+  PODCAST: 'success',
 };
 
-export function AdSlotCard({ adSlot }: AdSlotCardProps) {
+export function AdSlotCard({ adSlot }: { adSlot: AdSlot }) {
   return (
-    <div className="rounded-lg border border-[--color-border] p-4">
-      <div className="mb-2 flex items-start justify-between">
-        <h3 className="font-semibold">{adSlot.name}</h3>
-        <span className={`rounded px-2 py-0.5 text-xs ${typeColors[adSlot.type] || 'bg-gray-100'}`}>
-          {adSlot.type}
-        </span>
+    <div className="flex flex-col rounded-xl border border-[--color-border] bg-[--color-surface] p-5 shadow-[--shadow-sm] transition-all duration-200 hover:border-[--color-border-strong] hover:shadow-[--shadow-md]">
+      <div className="flex items-start justify-between gap-3">
+        <h3 className="font-medium leading-snug text-[--color-foreground]">{adSlot.name}</h3>
+        <Badge tone={typeTone[adSlot.type] ?? 'neutral'}>{adSlot.type.toLowerCase()}</Badge>
       </div>
 
       {adSlot.description && (
-        <p className="mb-3 text-sm text-[--color-muted] line-clamp-2">{adSlot.description}</p>
+        <p className="mt-1.5 line-clamp-2 text-sm text-[--color-muted]">{adSlot.description}</p>
       )}
 
-      <div className="flex items-center justify-between">
-        <span
-          className={`text-sm ${adSlot.isAvailable ? 'text-green-600' : 'text-[--color-muted]'}`}
-        >
-          {adSlot.isAvailable ? 'Available' : 'Booked'}
+      <div className="mt-4 flex items-end justify-between">
+        <span className="inline-flex items-center gap-1.5 text-sm">
+          <span
+            className={`h-1.5 w-1.5 rounded-full ${adSlot.isAvailable ? 'bg-[--color-success]' : 'bg-[--color-subtle]'}`}
+          />
+          <span className={adSlot.isAvailable ? 'text-[--color-success]' : 'text-[--color-muted]'}>
+            {adSlot.isAvailable ? 'Available' : 'Booked'}
+          </span>
         </span>
-        <span className="font-semibold text-[--color-primary]">
-          ${Number(adSlot.basePrice).toLocaleString()}/mo
+        <span className="font-numeric text-lg font-semibold">
+          ${Number(adSlot.basePrice).toLocaleString()}
+          <span className="text-sm font-normal text-[--color-muted]">/mo</span>
         </span>
       </div>
 
-      <div className="mt-3 flex items-center justify-between border-t border-[--color-border] pt-2">
+      <div className="mt-4 flex items-center justify-between border-t border-[--color-border] pt-3">
         <AdSlotFormModal
           adSlot={adSlot}
           triggerLabel="Edit"
-          triggerClassName="rounded px-3 py-1.5 text-sm text-[--color-primary] hover:bg-gray-50"
+          triggerClassName="rounded-md px-2.5 py-1.5 text-sm font-medium text-[--color-muted] transition-colors hover:bg-[--color-surface-hover] hover:text-[--color-foreground]"
         />
         <DeleteAdSlotButton id={adSlot.id} />
       </div>

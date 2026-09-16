@@ -25,8 +25,11 @@ export default async function PublisherDashboard() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">My Ad Slots</h1>
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <h1 className="text-xl font-semibold tracking-tight">Ad slots</h1>
+          <p className="mt-0.5 text-sm text-[--color-muted]">Manage your advertising inventory.</p>
+        </div>
         <AdSlotFormModal triggerLabel="Create ad slot" />
       </div>
 

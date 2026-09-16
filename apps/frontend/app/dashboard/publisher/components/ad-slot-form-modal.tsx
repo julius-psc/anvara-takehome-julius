@@ -19,7 +19,7 @@ export function AdSlotFormModal({ adSlot, triggerLabel, triggerClassName }: AdSl
         onClick={() => setOpen(true)}
         className={
           triggerClassName ??
-          'rounded-lg bg-[--color-primary] px-4 py-2 text-sm font-semibold text-white hover:opacity-90'
+          'btn-primary rounded-lg px-4 py-2 text-sm font-semibold'
         }
       >
         {triggerLabel}

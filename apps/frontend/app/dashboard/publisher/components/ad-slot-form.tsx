@@ -112,7 +112,7 @@ export function AdSlotForm({ adSlot, onDone }: AdSlotFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-lg bg-[--color-primary] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="btn-primary rounded-lg px-4 py-2 text-sm font-semibold"
         >
           {isSubmitting ? 'Saving…' : isEdit ? 'Save changes' : 'Create ad slot'}
         </button>

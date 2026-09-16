@@ -10,7 +10,7 @@ export default function PublisherDashboardError({ reset }: { reset: () => void }
       </p>
       <button
         onClick={reset}
-        className="rounded-lg bg-[--color-primary] px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
+        className="btn-primary rounded-lg px-4 py-2 text-sm font-semibold"
       >
         Try again
       </button>
