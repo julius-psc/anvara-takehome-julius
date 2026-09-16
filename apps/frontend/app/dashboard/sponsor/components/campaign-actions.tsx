@@ -5,6 +5,7 @@ import { IconPencil, IconTrash } from '@tabler/icons-react';
 import type { Campaign } from '@/lib/types';
 import { Modal } from '@/app/components/modal';
 import { Menu, MenuItem } from '@/app/components/menu';
+import { toast } from 'sonner';
 import { CampaignForm } from './campaign-form';
 import { deleteCampaign } from '../actions';
 
@@ -21,8 +22,17 @@ export function CampaignActions({ campaign }: { campaign: Campaign }) {
     setError(null);
     startTransition(async () => {
       const result = await deleteCampaign(campaign.id);
-      if (result.success) setConfirmingDelete(false);
-      else setError(result.error);
+      if (result.success) {
+        setConfirmingDelete(false);
+        toast.success('Campaign deleted', {
+          description: `"${campaign.name}" has been removed.`,
+        });
+      } else {
+        setError(result.error);
+        toast.error('Could not delete campaign', {
+          description: result.error || 'Please try again.',
+        });
+      }
     });
   };
 
@@ -66,7 +76,7 @@ export function CampaignActions({ campaign }: { campaign: Campaign }) {
         <p className="text-sm text-(--color-muted)">
           &ldquo;{campaign.name}&rdquo; will be permanently removed. This can&rsquo;t be undone.
         </p>
-        {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-2 text-sm text-(--color-error)">{error}</p>}
         <div className="mt-5 flex justify-end gap-2">
           <button
             type="button"
@@ -79,7 +89,7 @@ export function CampaignActions({ campaign }: { campaign: Campaign }) {
             type="button"
             onClick={onDelete}
             disabled={pending}
-            className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700 disabled:opacity-50"
+            className="rounded-lg bg-(--color-error) px-4 py-2 text-sm font-semibold text-(--color-on-primary) transition-colors hover:bg-(--color-error-hover) disabled:opacity-50"
           >
             {pending ? 'Deleting…' : 'Delete'}
           </button>

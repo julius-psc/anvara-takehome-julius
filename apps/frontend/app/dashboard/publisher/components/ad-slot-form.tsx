@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { adSlotSchema, type AdSlotInput, AD_SLOT_TYPES } from '@/lib/schemas';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
 import type { AdSlot } from '@/lib/types';
+import { toast } from 'sonner';
 import { createAdSlot, updateAdSlot } from '../actions';
 
 interface AdSlotFormProps {
@@ -40,6 +41,11 @@ export function AdSlotForm({ adSlot, onDone }: AdSlotFormProps) {
     const result = adSlot ? await updateAdSlot(adSlot.id, data) : await createAdSlot(data);
 
     if (result.success) {
+      toast.success(isEdit ? 'Ad slot updated' : 'Ad slot created', {
+        description: isEdit
+          ? 'Your changes have been saved.'
+          : 'Your new slot is listed for sponsors.',
+      });
       onDone();
       return;
     }
@@ -49,18 +55,21 @@ export function AdSlotForm({ adSlot, onDone }: AdSlotFormProps) {
       }
     }
     setServerError(result.error);
+    toast.error(isEdit ? 'Could not update ad slot' : 'Could not create ad slot', {
+      description: result.error || 'Please check the form and try again.',
+    });
   });
 
   // text-base on mobile prevents iOS Safari's focus-zoom; sm:text-sm keeps the
   // intended density on larger screens.
   const inputCls =
     'mt-1 w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-base text-(--color-foreground) transition-colors focus:border-(--color-accent) focus:outline-none focus:ring-2 focus:ring-(--color-accent-soft) sm:text-sm';
-  const errCls = 'mt-1 text-xs text-red-600';
+  const errCls = 'mt-1 text-xs text-(--color-error)';
 
   return (
     <form onSubmit={onSubmit} className="space-y-4" noValidate>
       {serverError && (
-        <div className="rounded border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+        <div className="rounded border border-(--color-error)/25 bg-(--color-error-soft) p-3 text-sm text-(--color-error)">
           {serverError}
         </div>
       )}
