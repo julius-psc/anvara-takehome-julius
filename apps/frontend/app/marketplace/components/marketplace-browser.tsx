@@ -1,10 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { AdSlot } from '@/lib/types';
 import { ViewToggle } from '@/app/components/view-toggle';
+import { FilterTabs } from '@/app/components/filter-tabs';
+import { Modal } from '@/app/components/modal';
 import { useViewPreference } from '@/lib/use-view-preference';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
+import { Pagination, usePagination } from '@/app/components/pagination';
+import { EmptyState } from '@/app/components/empty-state';
+import { AdSlotDetail } from '../[id]/components/ad-slot-detail';
 import { MarketplaceCard } from './marketplace-card';
 import { MarketplaceRow } from './marketplace-row';
 
@@ -25,39 +30,27 @@ const TYPE_FILTERS: { key: TypeFilter; label: string }[] = [
   })),
 ];
 
-function statusChipClass(active: boolean) {
-  return `inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-    active
-      ? 'bg-(--color-foreground) text-white'
-      : 'text-(--color-muted) hover:bg-(--color-surface-hover) hover:text-(--color-foreground)'
-  }`;
-}
-
-// Mid-dark gray — clearly selected, but softer than the solid black row above.
-function typeChipClass(active: boolean) {
-  return `inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-    active
-      ? 'bg-neutral-400 text-white'
-      : 'text-(--color-muted) hover:bg-(--color-surface-hover) hover:text-(--color-foreground)'
-  }`;
-}
-
 // Client-side status + type filters and view toggle over server-fetched listings.
-// Data still streams from the Server Component; this only owns which subset is
-// shown and how. The view choice persists across reloads.
 export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
   const [status, setStatus] = useState<StatusFilter>('all');
   const [type, setType] = useState<TypeFilter>('all');
   const [view, setView] = useViewPreference('anvara.marketplace.view');
+  const [selected, setSelected] = useState<AdSlot | null>(null);
+  const [overrides, setOverrides] = useState<Record<string, boolean>>({});
 
-  // Each filter's counts respect the other axis, so tabs stay honest as you narrow.
+  const closeModal = useCallback(() => setSelected(null), []);
+
+  const withOverrides = adSlots.map((slot) =>
+    slot.id in overrides ? { ...slot, isAvailable: overrides[slot.id] } : slot
+  );
+
   const byStatus =
     status === 'available'
-      ? adSlots.filter((s) => s.isAvailable)
+      ? withOverrides.filter((s) => s.isAvailable)
       : status === 'booked'
-        ? adSlots.filter((s) => !s.isAvailable)
-        : adSlots;
-  const byType = type === 'all' ? adSlots : adSlots.filter((s) => s.type === type);
+        ? withOverrides.filter((s) => !s.isAvailable)
+        : withOverrides;
+  const byType = type === 'all' ? withOverrides : withOverrides.filter((s) => s.type === type);
 
   const statusCounts: Record<StatusFilter, number> = {
     all: byType.length,
@@ -74,82 +67,93 @@ export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
   };
 
   const shown = byStatus.filter((s) => (type === 'all' ? true : s.type === type));
+  const { page, setPage, pageSize, slice } = usePagination(shown.length, `${status}:${type}`);
+  const pageItems = slice(shown);
 
-  const emptyLabel = [
-    status !== 'all' ? status : null,
-    type !== 'all' ? AD_SLOT_TYPE_META[type]?.label.toLowerCase() : null,
-    'ad slots',
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const selectedLive = selected
+    ? withOverrides.find((s) => s.id === selected.id) ?? selected
+    : null;
 
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div role="tablist" aria-label="Filter by availability" className="flex flex-wrap items-center gap-1">
-            {STATUS_FILTERS.map(({ key, label }) => {
-              const active = status === key;
-              return (
-                <button
-                  key={key}
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => setStatus(key)}
-                  className={statusChipClass(active)}
-                >
-                  {label}
-                  <span className={`font-numeric ${active ? 'text-white/60' : 'text-(--color-subtle)'}`}>
-                    {statusCounts[key]}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <FilterTabs
+            aria-label="Filter by availability"
+            layoutId="marketplace-status-pill"
+            value={status}
+            onChange={setStatus}
+            options={STATUS_FILTERS.map(({ key, label }) => ({
+              key,
+              label,
+              count: statusCounts[key],
+            }))}
+          />
 
           <ViewToggle view={view} onChange={setView} />
         </div>
 
-        <div role="tablist" aria-label="Filter by type" className="flex flex-wrap items-center gap-1">
-          {TYPE_FILTERS.map(({ key, label }) => {
-            const active = type === key;
+        <FilterTabs
+          aria-label="Filter by type"
+          layoutId="marketplace-type-pill"
+          value={type}
+          onChange={setType}
+          options={TYPE_FILTERS.map(({ key, label }) => {
             const Icon = key !== 'all' ? AD_SLOT_TYPE_META[key]?.icon : null;
-            return (
-              <button
-                key={key}
-                role="tab"
-                aria-selected={active}
-                onClick={() => setType(key)}
-                className={typeChipClass(active)}
-              >
-                {Icon && <Icon size={14} stroke={1.8} aria-hidden />}
-                {label}
-                <span className={`font-numeric ${active ? 'text-white/60' : 'text-(--color-subtle)'}`}>
-                  {typeCounts[key]}
-                </span>
-              </button>
-            );
+            return {
+              key,
+              label,
+              count: typeCounts[key],
+              icon: Icon ? <Icon size={14} stroke={1.8} aria-hidden /> : undefined,
+            };
           })}
-        </div>
+        />
       </div>
 
       {shown.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-(--color-border-strong) bg-(--color-surface) px-6 py-12 text-center text-sm text-(--color-muted)">
-          No {emptyLabel}.
-        </p>
-      ) : view === 'card' ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((slot) => (
-            <MarketplaceCard key={slot.id} adSlot={slot} />
-          ))}
-        </div>
+        <EmptyState
+          title="No matching ad slots"
+          description="Try another availability or type filter to browse more placements."
+        />
       ) : (
-        <ul className="divide-y divide-(--color-border) overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm)">
-          {shown.map((slot) => (
-            <MarketplaceRow key={slot.id} adSlot={slot} />
-          ))}
-        </ul>
+        <>
+          {view === 'card' ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {pageItems.map((slot) => (
+                <MarketplaceCard key={slot.id} adSlot={slot} onOpen={setSelected} />
+              ))}
+            </div>
+          ) : (
+            <ul className="divide-y divide-(--color-border) rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm) [&>li:first-child]:rounded-t-xl [&>li:last-child]:rounded-b-xl">
+              {pageItems.map((slot) => (
+                <MarketplaceRow key={slot.id} adSlot={slot} onOpen={setSelected} />
+              ))}
+            </ul>
+          )}
+          <Pagination page={page} pageSize={pageSize} total={shown.length} onPageChange={setPage} />
+        </>
       )}
+
+      <Modal
+        open={!!selectedLive}
+        onClose={closeModal}
+        title={selectedLive?.name ?? 'Ad slot'}
+        hideTitle
+        showClose
+        panelClassName="relative z-10 w-full max-w-md animate-modal-in rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-md) outline-none"
+      >
+        {selectedLive && (
+          <AdSlotDetail
+            key={selectedLive.id}
+            id={selectedLive.id}
+            initialSlot={selectedLive}
+            variant="modal"
+            onAvailabilityChange={(isAvailable) => {
+              setOverrides((prev) => ({ ...prev, [selectedLive.id]: isAvailable }));
+            }}
+          />
+        )}
+      </Modal>
     </div>
   );
 }

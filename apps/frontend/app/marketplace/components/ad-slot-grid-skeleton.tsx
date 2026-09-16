@@ -5,16 +5,16 @@ export function AdSlotGridSkeleton() {
     <div className="space-y-6" aria-hidden="true">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 rounded-lg border border-(--color-border) bg-(--color-surface) p-1">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-8 w-24 animate-pulse rounded-full bg-(--color-border)" />
+              <div key={i} className="h-8 w-24 animate-pulse rounded-sm bg-(--color-border)" />
             ))}
           </div>
-          <div className="h-8 w-16 animate-pulse rounded-lg bg-(--color-border)" />
+          <div className="h-9 w-16 animate-pulse rounded-lg bg-(--color-border)" />
         </div>
-        <div className="flex flex-wrap items-center gap-1">
+        <div className="inline-flex flex-wrap items-center gap-1 rounded-lg border border-(--color-border) bg-(--color-surface) p-1">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-8 w-24 animate-pulse rounded-full bg-(--color-border)" />
+            <div key={i} className="h-8 w-24 animate-pulse rounded-sm bg-(--color-border)" />
           ))}
         </div>
       </div>

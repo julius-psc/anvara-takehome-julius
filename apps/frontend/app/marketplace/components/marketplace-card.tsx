@@ -1,18 +1,33 @@
-import Link from 'next/link';
+'use client';
+
 import type { AdSlot } from '@/lib/types';
 import { Badge } from '@/app/components/badge';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
 
-export function MarketplaceCard({ adSlot }: { adSlot: AdSlot }) {
+interface Props {
+  adSlot: AdSlot;
+  onOpen: (adSlot: AdSlot) => void;
+}
+
+export function MarketplaceCard({ adSlot, onOpen }: Props) {
   const meta = AD_SLOT_TYPE_META[adSlot.type];
   const TypeIcon = meta?.icon;
+  const dimmed = !adSlot.isAvailable;
 
   return (
-    <Link
+    <a
       href={`/marketplace/${adSlot.id}`}
-      className="block rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm) transition-[box-shadow,transform] duration-150 ease-out hover:shadow-(--shadow-md) active:scale-[0.96]"
+      onClick={(e) => {
+        // Keep modified clicks (new tab / window) as real navigation.
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        e.preventDefault();
+        onOpen(adSlot);
+      }}
+      className={`block rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm) transition-[box-shadow,transform,opacity] duration-150 ease-out hover:shadow-(--shadow-md) active:scale-[0.96] ${
+        dimmed ? 'opacity-60 hover:opacity-80' : ''
+      }`}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <h3 className="text-balance font-medium leading-snug text-(--color-foreground)">
           {adSlot.name}
         </h3>
@@ -23,7 +38,7 @@ export function MarketplaceCard({ adSlot }: { adSlot: AdSlot }) {
       </div>
 
       {adSlot.publisher && (
-        <p className="mt-1 text-sm text-(--color-muted)">by {adSlot.publisher.name}</p>
+        <p className="mt-1 text-sm text-(--color-subtle)">by {adSlot.publisher.name}</p>
       )}
 
       {adSlot.description && (
@@ -46,6 +61,6 @@ export function MarketplaceCard({ adSlot }: { adSlot: AdSlot }) {
           <span className="text-sm font-normal text-(--color-muted)">/mo</span>
         </span>
       </div>
-    </Link>
+    </a>
   );
 }
