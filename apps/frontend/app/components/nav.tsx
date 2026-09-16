@@ -1,19 +1,20 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { authClient } from '@/auth-client';
 
 type UserRole = 'sponsor' | 'publisher' | null;
 
 export function Nav() {
+  const pathname = usePathname();
   const { data: session, isPending } = authClient.useSession();
   const user = session?.user;
   const [role, setRole] = useState<UserRole>(null);
 
-  // Fetch the user's role from the backend when logged in. State is only set in
-  // the async callbacks (guarded by `active`) to avoid synchronous setState in
-  // the effect body, and to ignore a response that resolves after unmount.
+  // Fetch the user's role from the backend when logged in (cancellation-safe:
+  // state is only set in async callbacks and ignored after unmount).
   useEffect(() => {
     if (!user?.id) return;
 
@@ -32,47 +33,47 @@ export function Nav() {
     };
   }, [user?.id]);
 
-  // TODO: Add active link styling using usePathname() from next/navigation
-  // The current page's link should be highlighted differently
+  const links = [
+    { href: '/marketplace', label: 'Marketplace' },
+    ...(role === 'sponsor' ? [{ href: '/dashboard/sponsor', label: 'My Campaigns' }] : []),
+    ...(role === 'publisher' ? [{ href: '/dashboard/publisher', label: 'My Ad Slots' }] : []),
+  ];
 
   return (
-    <header className="border-b border-[--color-border]">
-      <nav className="mx-auto flex max-w-6xl items-center justify-between p-4">
-        <Link href="/" className="text-xl font-bold text-[--color-primary]">
-          Anvara
-        </Link>
-
+    <header className="sticky top-0 z-40 border-b border-[--color-border] bg-[--color-background]">
+      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-6">
-          <Link
-            href="/marketplace"
-            className="text-[--color-muted] hover:text-[--color-foreground]"
-          >
-            Marketplace
+          <Link href="/" className="text-[15px] font-semibold tracking-tight">
+            Anvara
           </Link>
+          <div className="flex items-center gap-1">
+            {links.map((link) => {
+              const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
+                    isActive
+                      ? 'bg-[--color-surface-hover] font-medium text-[--color-foreground]'
+                      : 'text-[--color-muted] hover:text-[--color-foreground]'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
 
-          {user && role === 'sponsor' && (
-            <Link
-              href="/dashboard/sponsor"
-              className="text-[--color-muted] hover:text-[--color-foreground]"
-            >
-              My Campaigns
-            </Link>
-          )}
-          {user && role === 'publisher' && (
-            <Link
-              href="/dashboard/publisher"
-              className="text-[--color-muted] hover:text-[--color-foreground]"
-            >
-              My Ad Slots
-            </Link>
-          )}
-
+        <div className="flex items-center gap-3">
           {isPending ? (
-            <span className="text-[--color-muted]">...</span>
+            <div className="h-5 w-20 animate-pulse rounded bg-[--color-border]" />
           ) : user ? (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-[--color-muted]">
-                {user.name} {role && `(${role})`}
+            <>
+              <span className="hidden text-sm text-[--color-muted] sm:inline">
+                {user.name}
+                {role && <span className="text-[--color-subtle]"> · {role}</span>}
               </span>
               <button
                 onClick={async () => {
@@ -84,17 +85,17 @@ export function Nav() {
                     },
                   });
                 }}
-                className="rounded bg-gray-600 px-3 py-1.5 text-sm text-white hover:bg-gray-500"
+                className="rounded-md border border-[--color-border] px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[--color-surface-hover]"
               >
-                Logout
+                Sign out
               </button>
-            </div>
+            </>
           ) : (
             <Link
               href="/login"
-              className="rounded bg-[--color-primary] px-4 py-2 text-sm text-white hover:bg-[--color-primary-hover]"
+              className="btn-primary rounded-md px-3.5 py-1.5 text-sm font-medium"
             >
-              Login
+              Sign in
             </Link>
           )}
         </div>
