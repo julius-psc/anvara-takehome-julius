@@ -1,7 +1,7 @@
 import { FEATURES, type FeatureItem } from './content';
 
 function FeatureIcon({ name }: { name: FeatureItem['icon'] }) {
-  const common = 'h-5 w-5';
+  const common = 'h-6 w-6';
   switch (name) {
     case 'browse':
       return (
@@ -49,7 +49,10 @@ export function LandingFeatures() {
   const publisherFeatures = FEATURES.filter((f) => f.audience === 'publisher');
 
   return (
-    <section aria-labelledby="landing-features-title" className="border-t border-(--color-border) py-14 sm:py-16">
+    <section
+      aria-labelledby="landing-features-title"
+      className="px-4 py-14 sm:px-6 sm:py-16 lg:px-12 xl:px-16"
+    >
       <div className="max-w-2xl">
         <p className="text-sm font-medium text-(--color-accent)">Why Anvara</p>
         <h2
@@ -64,9 +67,9 @@ export function LandingFeatures() {
         </p>
       </div>
 
-      <div className="mt-10 grid gap-10 lg:grid-cols-2 lg:gap-14">
-        <FeatureGroup label="For sponsors" items={sponsorFeatures} />
-        <FeatureGroup label="For publishers" items={publisherFeatures} />
+      <div className="mt-10 grid gap-12 sm:gap-14 lg:grid-cols-2 lg:gap-16">
+        <FeatureGroup label="For Sponsors" items={sponsorFeatures} />
+        <FeatureGroup label="For Publishers" items={publisherFeatures} />
       </div>
     </section>
   );
@@ -75,14 +78,14 @@ export function LandingFeatures() {
 function FeatureGroup({ label, items }: { label: string; items: FeatureItem[] }) {
   return (
     <div>
-      <h3 className="text-sm font-medium tracking-wide text-(--color-muted) uppercase">{label}</h3>
-      <ul className="mt-5 space-y-6">
+      <h3 className="text-base font-medium text-(--color-muted)">{label}</h3>
+      <ul className="mt-5 space-y-5 ps-5 sm:ps-6">
         {items.map((item) => (
-          <li key={item.title} className="flex gap-4">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-(--color-border) bg-(--color-surface) text-(--color-accent)">
+          <li key={item.title} className="flex items-center gap-4">
+            <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-(--color-surface) text-(--color-accent)">
               <FeatureIcon name={item.icon} />
             </span>
-            <div className="min-w-0 pt-0.5">
+            <div className="min-w-0">
               <p className="font-medium text-(--color-foreground)">{item.title}</p>
               <p className="mt-1 text-sm leading-relaxed text-(--color-muted) text-pretty">
                 {item.description}
