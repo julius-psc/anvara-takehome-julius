@@ -17,6 +17,11 @@ export const metadata: Metadata = {
   },
 };
 
+/** Break out of the (app) max-width shell so login can be full-bleed. */
 export default function LoginLayout({ children }: { children: React.ReactNode }) {
-  return children;
+  return (
+    <div className="relative left-1/2 w-screen max-w-[100vw] -translate-x-1/2 -my-8 min-h-[calc(100dvh-3.5rem)] overflow-x-clip">
+      {children}
+    </div>
+  );
 }

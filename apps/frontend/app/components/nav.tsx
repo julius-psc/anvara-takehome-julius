@@ -80,9 +80,20 @@ export function Nav() {
           <div className="h-5 w-20 animate-pulse rounded-lg bg-(--color-border)" />
         ) : user ? (
           <>
-            <span className="hidden text-sm text-(--color-muted) sm:inline">
-              {user.name}
-              {role && <span className="text-(--color-subtle)"> · {role}</span>}
+            <span
+              className="hidden items-center gap-1.5 rounded-full bg-(--color-surface) py-0.5 pr-2.5 pl-0.5 sm:inline-flex"
+              title={user.name}
+              aria-label={role ? `${user.name}, ${role}` : user.name}
+            >
+              <span
+                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-(--color-primary) text-xs font-semibold text-(--color-on-primary)"
+                aria-hidden
+              >
+                {(user.name?.trim().charAt(0) || '?').toUpperCase()}
+              </span>
+              {role && (
+                <span className="text-xs font-medium capitalize text-(--color-muted)">{role}</span>
+              )}
             </span>
             <button
               onClick={async () => {
@@ -120,7 +131,7 @@ export function Nav() {
   }
 
   return (
-    <header className="sticky top-0 z-40 border-b border-(--color-border) bg-(--color-background)/80 backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-(--color-border)/40 bg-(--color-background)/80 backdrop-blur-md">
       <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         {navInner}
       </nav>
