@@ -3,9 +3,10 @@
 import { IconLayoutGrid, IconLayoutList } from '@tabler/icons-react';
 import type { ViewMode } from '@/lib/use-view-preference';
 
-// Segmented card/list switch. Concentric radius: rounded-lg track + p-0.5 padding
-// wraps rounded-md buttons. The selected state is a static cue (surface + shadow),
-// with scale(0.96) press feedback; only the changed properties transition.
+// Segmented card/list switch. Concentric radius (Tailwind v4):
+// rounded-lg (8px) track − p-1 (4px) padding → rounded-sm (4px) buttons.
+// Selected state is a static cue (surface + shadow); scale(0.96) on press;
+// only the changed properties transition.
 export function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode) => void }) {
   const options: { key: ViewMode; label: string; Icon: typeof IconLayoutGrid }[] = [
     { key: 'card', label: 'Card view', Icon: IconLayoutGrid },
@@ -16,7 +17,7 @@ export function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: V
     <div
       role="group"
       aria-label="View"
-      className="flex items-center gap-0.5 rounded-lg border border-(--color-border) bg-(--color-surface) p-0.5"
+      className="flex items-center gap-0.5 rounded-lg border border-(--color-border) bg-(--color-surface) p-1"
     >
       {options.map(({ key, label, Icon }) => {
         const active = view === key;
@@ -27,7 +28,7 @@ export function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: V
             aria-label={label}
             aria-pressed={active}
             onClick={() => onChange(key)}
-            className={`grid h-7 w-7 place-items-center rounded-md transition-[color,background-color,box-shadow,transform] duration-150 ease-out active:scale-[0.96] ${
+            className={`grid h-7 w-7 place-items-center rounded-sm transition-[color,background-color,box-shadow,transform] duration-150 ease-out active:scale-[0.96] ${
               active
                 ? 'bg-(--color-surface-hover) text-(--color-foreground) shadow-(--shadow-sm)'
                 : 'text-(--color-muted) hover:text-(--color-foreground)'

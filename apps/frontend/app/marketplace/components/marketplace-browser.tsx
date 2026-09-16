@@ -33,11 +33,11 @@ function statusChipClass(active: boolean) {
   }`;
 }
 
-// Softer selected state so the type row reads as secondary to availability.
+// Mid-dark gray — clearly selected, but softer than the solid black row above.
 function typeChipClass(active: boolean) {
   return `inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
     active
-      ? 'bg-(--color-surface-hover) text-(--color-foreground)'
+      ? 'bg-neutral-400 text-white'
       : 'text-(--color-muted) hover:bg-(--color-surface-hover) hover:text-(--color-foreground)'
   }`;
 }
@@ -124,7 +124,7 @@ export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
               >
                 {Icon && <Icon size={14} stroke={1.8} aria-hidden />}
                 {label}
-                <span className={`font-numeric ${active ? 'text-(--color-muted)' : 'text-(--color-subtle)'}`}>
+                <span className={`font-numeric ${active ? 'text-white/60' : 'text-(--color-subtle)'}`}>
                   {typeCounts[key]}
                 </span>
               </button>

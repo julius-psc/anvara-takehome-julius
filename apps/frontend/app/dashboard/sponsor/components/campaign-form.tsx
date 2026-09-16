@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { IconChevronDown } from '@tabler/icons-react';
 import { campaignSchema, type CampaignInput, CAMPAIGN_STATUSES } from '@/lib/schemas';
 import { formatStatusLabel } from '@/lib/campaign-meta';
 import type { Campaign } from '@/lib/types';
@@ -121,13 +122,24 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
       {isEdit && (
         <div>
           <label className="block text-sm font-medium">Status</label>
-          <select {...register('status')} className={inputCls}>
-            {CAMPAIGN_STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {formatStatusLabel(s)}
-              </option>
-            ))}
-          </select>
+          <div className="relative mt-1 w-fit">
+            <select
+              {...register('status')}
+              className={`${inputCls} mt-0 appearance-none pr-8`}
+            >
+              {CAMPAIGN_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {formatStatusLabel(s)}
+                </option>
+              ))}
+            </select>
+            <IconChevronDown
+              size={16}
+              stroke={1.5}
+              aria-hidden
+              className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-(--color-muted)"
+            />
+          </div>
         </div>
       )}
 

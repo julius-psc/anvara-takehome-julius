@@ -12,21 +12,22 @@ export function MarketplaceRow({ adSlot }: { adSlot: AdSlot }) {
     <li>
       <Link
         href={`/marketplace/${adSlot.id}`}
-        className="flex items-center gap-4 px-4 py-3 transition-colors hover:bg-(--color-surface-hover)"
+        className="flex items-center gap-4 px-4 py-3 transition-colors duration-150 ease-out hover:bg-(--color-surface-hover)"
       >
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <h3 className="truncate font-medium text-(--color-foreground)">{adSlot.name}</h3>
             <Badge tone={meta?.tone ?? 'neutral'}>
               {TypeIcon && <TypeIcon size={13} stroke={1.8} />}
               {meta?.label ?? adSlot.type}
             </Badge>
+            {adSlot.publisher && (
+              <span className="truncate text-xs text-(--color-muted)">by {adSlot.publisher.name}</span>
+            )}
           </div>
-          {adSlot.publisher ? (
-            <p className="mt-0.5 truncate text-sm text-(--color-muted)">by {adSlot.publisher.name}</p>
-          ) : adSlot.description ? (
+          {adSlot.description && (
             <p className="mt-0.5 truncate text-sm text-(--color-muted)">{adSlot.description}</p>
-          ) : null}
+          )}
         </div>
 
         <span className="hidden items-center gap-1.5 text-sm sm:inline-flex">

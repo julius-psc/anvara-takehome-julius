@@ -10,7 +10,7 @@ export function MarketplaceCard({ adSlot }: { adSlot: AdSlot }) {
   return (
     <Link
       href={`/marketplace/${adSlot.id}`}
-      className="block rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm) transition-shadow hover:shadow-(--shadow-md)"
+      className="block rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm) transition-[box-shadow,transform] duration-150 ease-out hover:shadow-(--shadow-md) active:scale-[0.96]"
     >
       <div className="flex items-start justify-between gap-3">
         <h3 className="text-balance font-medium leading-snug text-(--color-foreground)">

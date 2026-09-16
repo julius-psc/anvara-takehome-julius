@@ -1,3 +1,4 @@
+import { IconCalendar } from '@tabler/icons-react';
 import type { Campaign } from '@/lib/types';
 import { Badge } from '@/app/components/badge';
 import { CAMPAIGN_STATUS_TONE, formatStatusLabel } from '@/lib/campaign-meta';
@@ -13,6 +14,7 @@ export function CampaignRow({ campaign }: { campaign: Campaign }) {
   const spent = Number(campaign.spent);
   const spendPct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
   const spendLabel = `$${spent.toLocaleString()} spent of $${budget.toLocaleString()}`;
+  const dateLabel = `${formatDate(campaign.startDate)} – ${formatDate(campaign.endDate)}`;
 
   return (
     <li className="flex items-center gap-4 px-4 py-3">
@@ -28,9 +30,21 @@ export function CampaignRow({ campaign }: { campaign: Campaign }) {
         )}
       </div>
 
-      <span className="hidden font-numeric text-sm text-(--color-muted) sm:inline">
-        {formatDate(campaign.startDate)} – {formatDate(campaign.endDate)}
-      </span>
+      <div className="group relative hidden sm:block">
+        <button
+          type="button"
+          aria-label={dateLabel}
+          className="grid h-7 w-7 place-items-center rounded-md text-(--color-muted) transition-colors hover:bg-(--color-surface-hover) hover:text-(--color-foreground)"
+        >
+          <IconCalendar size={16} stroke={1.5} aria-hidden />
+        </button>
+        <div
+          role="tooltip"
+          className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded-md bg-(--color-foreground) px-2 py-1 font-numeric text-xs whitespace-nowrap text-(--color-surface) opacity-0 shadow-(--shadow-sm) transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-within:opacity-100"
+        >
+          {dateLabel}
+        </div>
+      </div>
 
       <div className="group relative w-20 shrink-0">
         <div
