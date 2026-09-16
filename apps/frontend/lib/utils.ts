@@ -52,17 +52,21 @@ export function deepClone<T>(obj: T): T {
   return JSON.parse(JSON.stringify(obj));
 }
 
-// Logger that only logs in development
+// Central logger — the one sanctioned place for console, so the rest of the
+// app routes through this and stays no-console clean.
 export const logger = {
   log: (...args: unknown[]) => {
     if (process.env.NODE_ENV === 'development') {
+      // eslint-disable-next-line no-console
       console.log('[App]', ...args);
     }
   },
   error: (...args: unknown[]) => {
+    // eslint-disable-next-line no-console
     console.error('[App Error]', ...args);
   },
   warn: (...args: unknown[]) => {
+    // eslint-disable-next-line no-console
     console.warn('[App Warning]', ...args);
   },
 };

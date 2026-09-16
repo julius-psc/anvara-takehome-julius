@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 
 const DEFAULT_PAGE_SIZE = 9;
@@ -8,21 +8,25 @@ const DEFAULT_PAGE_SIZE = 9;
 /** Keep page in range and reset to 1 when `resetKey` changes (e.g. filter). */
 export function usePagination(total: number, resetKey: string | number, pageSize = DEFAULT_PAGE_SIZE) {
   const [page, setPage] = useState(1);
+  const [prevResetKey, setPrevResetKey] = useState(resetKey);
   const totalPages = Math.max(1, Math.ceil(total / pageSize) || 1);
 
-  useEffect(() => {
+  // Reset to page 1 when the filter/search key changes. Adjusting state during
+  // render is React's recommended alternative to an effect here — no extra
+  // commit, no flash of the previous page.
+  if (resetKey !== prevResetKey) {
+    setPrevResetKey(resetKey);
     setPage(1);
-  }, [resetKey]);
+  }
 
-  useEffect(() => {
-    if (page > totalPages) setPage(totalPages);
-  }, [page, totalPages]);
-
-  const startIndex = (page - 1) * pageSize;
+  // Clamp into range by derivation rather than storing it, so a shrinking total
+  // never leaves us on a page that no longer exists.
+  const safePage = Math.min(page, totalPages);
+  const startIndex = (safePage - 1) * pageSize;
   const endIndex = Math.min(startIndex + pageSize, total);
 
   return {
-    page,
+    page: safePage,
     setPage,
     pageSize,
     totalPages,
@@ -63,10 +67,14 @@ export function Pagination({
   const start = total === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, total);
   const [jumpValue, setJumpValue] = useState(String(page));
+  const [prevPage, setPrevPage] = useState(page);
 
-  useEffect(() => {
+  // Sync the jump input when the page changes elsewhere (prev/next, filter
+  // reset) — again during render, not via an effect.
+  if (page !== prevPage) {
+    setPrevPage(page);
     setJumpValue(String(page));
-  }, [page]);
+  }
 
   if (total === 0) return null;
 

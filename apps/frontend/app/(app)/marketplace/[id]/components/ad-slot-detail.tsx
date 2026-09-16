@@ -10,6 +10,7 @@ import { Badge } from '@/app/components/badge';
 import { FadeIn } from '@/app/components/fade-in';
 import { toast } from 'sonner';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
+import { logger } from '@/lib/utils';
 import type { AdSlot } from '@/lib/types';
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
@@ -86,17 +87,25 @@ export function AdSlotDetail({
     };
   }, [id, initialSlot]);
 
+  const userId = sessionUser?.id ?? null;
+  const [prevUserId, setPrevUserId] = useState(userId);
+
+  // Reset role state when the signed-in user changes (adjust during render, so
+  // logging out clears the role immediately without a synchronous setState in
+  // an effect). The effect below only touches state around the actual fetch.
+  if (userId !== prevUserId) {
+    setPrevUserId(userId);
+    setRoleInfo(null);
+    setRolePending(!!userId);
+  }
+
   useEffect(() => {
+    if (!userId) return;
+
+    // Pending is already true here — set by the initial state for a cached user,
+    // or by the during-render reset when the user changes — so the effect only
+    // performs the fetch and settles state in its async callbacks.
     let cancelled = false;
-    const userId = sessionUser?.id;
-
-    if (!userId) {
-      setRoleInfo(null);
-      setRolePending(false);
-      return;
-    }
-
-    setRolePending(true);
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4291'}/api/auth/role/${userId}`)
       .then((res) => res.json())
       .then((data) => {
@@ -112,7 +121,7 @@ export function AdSlotDetail({
     return () => {
       cancelled = true;
     };
-  }, [sessionUser?.id]);
+  }, [userId]);
 
   const user = sessionUser;
   const isSponsor = roleInfo?.role === 'sponsor' && !!roleInfo?.sponsorId;
@@ -186,7 +195,7 @@ export function AdSlotDetail({
         description: 'This ad slot is available again.',
       });
     } catch (err) {
-      console.error('Failed to unbook:', err);
+      logger.error('Failed to unbook:', err);
       toast.error('Could not reset listing', {
         description: 'Please try again in a moment.',
       });
@@ -336,7 +345,7 @@ export function AdSlotDetail({
         ) : adSlot.isAvailable ? (
           <motion.div
             key="form"
-            className="space-y-3"
+            className="space-y-3 border-t border-dotted border-(--color-border) pt-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -345,7 +354,7 @@ export function AdSlotDetail({
               ease: EASE_OUT,
             }}
           >
-            <h2 className="text-sm font-semibold tracking-tight text-(--color-foreground)">
+            <h2 className="text-base font-semibold tracking-tight text-(--color-foreground)">
               Request this placement
             </h2>
 
