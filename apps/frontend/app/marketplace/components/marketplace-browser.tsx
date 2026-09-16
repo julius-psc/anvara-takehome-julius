@@ -5,8 +5,8 @@ import type { AdSlot } from '@/lib/types';
 import { ViewToggle } from '@/app/components/view-toggle';
 import { useViewPreference } from '@/lib/use-view-preference';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
-import { AdSlotCard } from './ad-slot-card';
-import { AdSlotRow } from './ad-slot-row';
+import { MarketplaceCard } from './marketplace-card';
+import { MarketplaceRow } from './marketplace-row';
 
 type StatusFilter = 'all' | 'available' | 'booked';
 type TypeFilter = 'all' | AdSlot['type'];
@@ -25,7 +25,7 @@ const TYPE_FILTERS: { key: TypeFilter; label: string }[] = [
   })),
 ];
 
-function chipClass(active: boolean) {
+function statusChipClass(active: boolean) {
   return `inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
     active
       ? 'bg-(--color-foreground) text-white'
@@ -33,13 +33,22 @@ function chipClass(active: boolean) {
   }`;
 }
 
-// Client-side status + type filters and view toggle over server-fetched ad slots.
+// Softer selected state so the type row reads as secondary to availability.
+function typeChipClass(active: boolean) {
+  return `inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+    active
+      ? 'bg-(--color-surface-hover) text-(--color-foreground)'
+      : 'text-(--color-muted) hover:bg-(--color-surface-hover) hover:text-(--color-foreground)'
+  }`;
+}
+
+// Client-side status + type filters and view toggle over server-fetched listings.
 // Data still streams from the Server Component; this only owns which subset is
 // shown and how. The view choice persists across reloads.
-export function AdSlotBrowser({ adSlots }: { adSlots: AdSlot[] }) {
+export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
   const [status, setStatus] = useState<StatusFilter>('all');
   const [type, setType] = useState<TypeFilter>('all');
-  const [view, setView] = useViewPreference('anvara.publisher.view');
+  const [view, setView] = useViewPreference('anvara.marketplace.view');
 
   // Each filter's counts respect the other axis, so tabs stay honest as you narrow.
   const byStatus =
@@ -87,7 +96,7 @@ export function AdSlotBrowser({ adSlots }: { adSlots: AdSlot[] }) {
                   role="tab"
                   aria-selected={active}
                   onClick={() => setStatus(key)}
-                  className={chipClass(active)}
+                  className={statusChipClass(active)}
                 >
                   {label}
                   <span className={`font-numeric ${active ? 'text-white/60' : 'text-(--color-subtle)'}`}>
@@ -111,11 +120,11 @@ export function AdSlotBrowser({ adSlots }: { adSlots: AdSlot[] }) {
                 role="tab"
                 aria-selected={active}
                 onClick={() => setType(key)}
-                className={chipClass(active)}
+                className={typeChipClass(active)}
               >
                 {Icon && <Icon size={14} stroke={1.8} aria-hidden />}
                 {label}
-                <span className={`font-numeric ${active ? 'text-white/60' : 'text-(--color-subtle)'}`}>
+                <span className={`font-numeric ${active ? 'text-(--color-muted)' : 'text-(--color-subtle)'}`}>
                   {typeCounts[key]}
                 </span>
               </button>
@@ -131,13 +140,13 @@ export function AdSlotBrowser({ adSlots }: { adSlots: AdSlot[] }) {
       ) : view === 'card' ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {shown.map((slot) => (
-            <AdSlotCard key={slot.id} adSlot={slot} />
+            <MarketplaceCard key={slot.id} adSlot={slot} />
           ))}
         </div>
       ) : (
         <ul className="divide-y divide-(--color-border) overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm)">
           {shown.map((slot) => (
-            <AdSlotRow key={slot.id} adSlot={slot} />
+            <MarketplaceRow key={slot.id} adSlot={slot} />
           ))}
         </ul>
       )}

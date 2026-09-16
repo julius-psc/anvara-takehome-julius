@@ -4,18 +4,13 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { campaignSchema, type CampaignInput, CAMPAIGN_STATUSES } from '@/lib/schemas';
+import { formatStatusLabel } from '@/lib/campaign-meta';
 import type { Campaign } from '@/lib/types';
 import { createCampaign, updateCampaign } from '../actions';
 
 // <input type="date"> needs a yyyy-mm-dd value; the API returns full ISO strings.
 function toDateInputValue(iso: string): string {
   return iso ? new Date(iso).toISOString().slice(0, 10) : '';
-}
-
-// Turn a raw enum like "PENDING_REVIEW" into a readable "Pending review".
-function formatStatusLabel(status: string): string {
-  const words = status.toLowerCase().replace(/_/g, ' ');
-  return words.charAt(0).toUpperCase() + words.slice(1);
 }
 
 interface CampaignFormProps {
@@ -79,7 +74,11 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
 
       <div>
         <label className="block text-sm font-medium">Name</label>
-        <input {...register('name')} className={inputCls} />
+        <input
+          {...register('name')}
+          placeholder="Q1 Product Launch"
+          className={inputCls}
+        />
         {errors.name && <p className={errCls}>{errors.name.message}</p>}
       </div>
 
@@ -89,6 +88,7 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
           type="number"
           step="0.01"
           {...register('budget', { valueAsNumber: true })}
+          placeholder="5000"
           className={inputCls}
         />
         {errors.budget && <p className={errCls}>{errors.budget.message}</p>}
@@ -96,7 +96,12 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
 
       <div>
         <label className="block text-sm font-medium">Description</label>
-        <textarea {...register('description')} rows={2} className={inputCls} />
+        <textarea
+          {...register('description')}
+          rows={2}
+          placeholder="Launch campaign for our new product"
+          className={inputCls}
+        />
         {errors.description && <p className={errCls}>{errors.description.message}</p>}
       </div>
 

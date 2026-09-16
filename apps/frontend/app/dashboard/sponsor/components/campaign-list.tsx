@@ -1,6 +1,5 @@
 import { getSponsorCampaigns } from '@/lib/data';
-import { CampaignCard } from './campaign-card';
-import { CampaignStats } from './campaign-stats';
+import { CampaignBrowser } from './campaign-browser';
 import { CampaignFormModal } from './campaign-form-modal';
 
 // Async Server Component: fetches the sponsor's campaigns on the server.
@@ -37,14 +36,5 @@ export async function CampaignList() {
     );
   }
 
-  return (
-    <div className="space-y-6">
-      <CampaignStats campaigns={campaigns} />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {campaigns.map((campaign) => (
-          <CampaignCard key={campaign.id} campaign={campaign} />
-        ))}
-      </div>
-    </div>
-  );
+  return <CampaignBrowser campaigns={campaigns} />;
 }

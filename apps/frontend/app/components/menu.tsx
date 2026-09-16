@@ -2,18 +2,28 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 
+// Default trigger styling: the compact kebab (⋯) icon button.
+const KEBAB_TRIGGER =
+  'grid h-7 w-7 place-items-center rounded-md text-(--color-muted) transition-colors hover:bg-(--color-surface-hover) hover:text-(--color-foreground)';
+
 interface MenuProps {
   /** Accessible label for the trigger button, e.g. "Ad slot actions". */
   label: string;
   /** Render the menu items; call `close` to dismiss the menu after an action. */
   children: (close: () => void) => ReactNode;
+  /** Custom trigger content; defaults to the kebab (⋯) glyph. */
+  trigger?: ReactNode;
+  /** Overrides the trigger button classes (use with a custom `trigger`). */
+  triggerClassName?: string;
+  /** Which edge the panel aligns to. Kebabs sit top-right → 'right' (default). */
+  align?: 'left' | 'right';
 }
 
-// Accessible kebab (⋯) dropdown following the WAI-ARIA menu-button pattern.
-// The trigger toggles a role="menu" panel that closes on Escape, on outside
-// click, and after an item runs. Focus moves to the first item on open and
-// returns to the trigger on Escape; Arrow/Home/End move between items.
-export function Menu({ label, children }: MenuProps) {
+// Accessible dropdown following the WAI-ARIA menu-button pattern. The trigger
+// toggles a role="menu" panel that closes on Escape, on outside click, and after
+// an item runs. Focus moves to the first item on open and returns to the trigger
+// on Escape; Arrow/Home/End move between items. Defaults to a kebab (⋯) trigger.
+export function Menu({ label, children, trigger, triggerClassName, align = 'right' }: MenuProps) {
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -73,22 +83,26 @@ export function Menu({ label, children }: MenuProps) {
         aria-haspopup="menu"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="grid h-7 w-7 place-items-center rounded-md text-(--color-muted) transition-colors hover:bg-(--color-surface-hover) hover:text-(--color-foreground)"
+        className={triggerClassName ?? KEBAB_TRIGGER}
       >
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
-          <circle cx="8" cy="3" r="1.4" />
-          <circle cx="8" cy="8" r="1.4" />
-          <circle cx="8" cy="13" r="1.4" />
-        </svg>
+        {trigger ?? (
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+            <circle cx="8" cy="3" r="1.4" />
+            <circle cx="8" cy="8" r="1.4" />
+            <circle cx="8" cy="13" r="1.4" />
+          </svg>
+        )}
       </button>
 
       {open && (
         <div
           role="menu"
           aria-label={label}
-          // Anchored below the trigger and aligned to its right edge: expands
-          // down-and-into the card, so it never clips on the right of the grid.
-          className="absolute right-0 top-full z-20 mt-1 min-w-36 animate-fade-in rounded-lg border border-(--color-border) bg-(--color-surface) p-1 shadow-(--shadow-md)"
+          // Anchored below the trigger; aligns to the requested edge so it grows
+          // inward and never clips (right for corner kebabs, left for toolbars).
+          className={`absolute top-full z-20 mt-1 min-w-40 animate-fade-in rounded-lg border border-(--color-border) bg-(--color-surface) p-1 shadow-(--shadow-md) ${
+            align === 'left' ? 'left-0' : 'right-0'
+          }`}
         >
           {children(close)}
         </div>
