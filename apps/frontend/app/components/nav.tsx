@@ -40,7 +40,7 @@ export function Nav() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-[--color-border] bg-[--color-background]">
+    <header className="sticky top-0 z-40 border-b border-(--color-border) bg-(--color-background)">
       <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-6">
           <Link href="/" className="text-[15px] font-semibold tracking-tight">
@@ -55,8 +55,8 @@ export function Nav() {
                   href={link.href}
                   className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
                     isActive
-                      ? 'bg-[--color-surface-hover] font-medium text-[--color-foreground]'
-                      : 'text-[--color-muted] hover:text-[--color-foreground]'
+                      ? 'bg-(--color-surface-hover) font-medium text-(--color-foreground)'
+                      : 'text-(--color-muted) hover:text-(--color-foreground)'
                   }`}
                 >
                   {link.label}
@@ -68,12 +68,12 @@ export function Nav() {
 
         <div className="flex items-center gap-3">
           {isPending ? (
-            <div className="h-5 w-20 animate-pulse rounded bg-[--color-border]" />
+            <div className="h-5 w-20 animate-pulse rounded bg-(--color-border)" />
           ) : user ? (
             <>
-              <span className="hidden text-sm text-[--color-muted] sm:inline">
+              <span className="hidden text-sm text-(--color-muted) sm:inline">
                 {user.name}
-                {role && <span className="text-[--color-subtle]"> · {role}</span>}
+                {role && <span className="text-(--color-subtle)"> · {role}</span>}
               </span>
               <button
                 onClick={async () => {
@@ -85,7 +85,7 @@ export function Nav() {
                     },
                   });
                 }}
-                className="rounded-md border border-[--color-border] px-3 py-1.5 text-sm font-medium transition-colors hover:bg-[--color-surface-hover]"
+                className="rounded-md border border-(--color-border) px-3 py-1.5 text-sm font-medium transition-colors hover:bg-(--color-surface-hover)"
               >
                 Sign out
               </button>

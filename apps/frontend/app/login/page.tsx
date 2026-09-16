@@ -68,8 +68,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-[--color-background]">
-      <div className="w-full max-w-md rounded-lg border border-[--color-border] p-6 shadow-sm">
+    <div className="flex min-h-screen items-center justify-center bg-(--color-background)">
+      <div className="w-full max-w-md rounded-lg border border-(--color-border) p-6 shadow-sm">
         <h1 className="mb-6 text-2xl font-bold">Login to Anvara</h1>
 
         {error && (
@@ -80,13 +80,13 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-[--color-foreground]">
+            <label className="block text-sm font-medium text-(--color-foreground)">
               Quick Login As
             </label>
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as 'sponsor' | 'publisher')}
-              className="mt-1 w-full rounded border border-[--color-border] bg-white px-3 py-2 text-gray-900"
+              className="mt-1 w-full rounded border border-(--color-border) bg-white px-3 py-2 text-gray-900"
             >
               <option value="sponsor">Sponsor (sponsor@example.com)</option>
               <option value="publisher">Publisher (publisher@example.com)</option>
@@ -96,7 +96,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-[--color-primary] px-4 py-2 font-semibold text-white hover:opacity-90 disabled:opacity-50"
+            className="w-full rounded-lg bg-(--color-primary) px-4 py-2 font-semibold text-white hover:opacity-90 disabled:opacity-50"
           >
             {loading ? 'Logging in...' : `Login as ${role === 'sponsor' ? 'Sponsor' : 'Publisher'}`}
           </button>

@@ -3,7 +3,7 @@
 /*
  * Anvara design tokens — a clean, minimal (Vercel/Linear-inspired) system:
  * warm-neutral scale, near-black primary actions, one restrained blue accent.
- * Components reference these via Tailwind arbitrary values, e.g. bg-[--color-surface].
+ * Components reference these via Tailwind v4's CSS-var shorthand, e.g. bg-(--color-surface).
  */
 :root {
   /* Neutral scale (warm-tinted) */
@@ -67,6 +67,20 @@
     background-color: var(--color-accent);
     color: #ffffff;
   }
+
+  /* Tailwind v4's Preflight no longer sets cursor:pointer on buttons; restore it
+     for enabled buttons and button-role elements (disabled keeps the default). */
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  /* Visible keyboard-focus ring (accessibility). */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 @layer components {
@@ -101,5 +115,43 @@
     font-family: var(--font-mono);
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.01em;
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 150ms ease-out;
+  }
+  .animate-modal-in {
+    animation: modalIn 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }
