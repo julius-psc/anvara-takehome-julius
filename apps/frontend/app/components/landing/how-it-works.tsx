@@ -1,28 +1,55 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useReducedMotion } from 'motion/react';
 import { HOW_IT_WORKS } from './content';
+import {
+  AccountIllustration,
+  CampaignIllustration,
+  InventoryIllustration,
+} from './how-it-works-illustrations';
 
-/** Time each step holds focus before advancing. Marketing pace — deliberate. */
-const STEP_MS = 2800;
+/** Spotlight dwell — long enough to read one step's transition, then hold. */
+const STEP_MS = 3600;
 
 export function LandingHowItWorks() {
   const reduceMotion = useReducedMotion();
+  const sectionRef = useRef<HTMLElement>(null);
+  const [inView, setInView] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
 
+  // Only run the story while the section is on screen. Reset to the first step
+  // whenever it re-enters so the sequence always plays from the beginning.
   useEffect(() => {
-    if (reduceMotion) return;
+    const node = sectionRef.current;
+    if (!node) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setInView(entry.isIntersecting);
+        if (entry.isIntersecting) setActiveIndex(0);
+      },
+      { threshold: 0.4 },
+    );
+
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, []);
+
+  // Advance the spotlight only while visible; parked at step 0 otherwise.
+  useEffect(() => {
+    if (reduceMotion || !inView) return;
 
     const id = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % HOW_IT_WORKS.length);
     }, STEP_MS);
 
     return () => window.clearInterval(id);
-  }, [reduceMotion]);
+  }, [reduceMotion, inView]);
 
   return (
     <section
+      ref={sectionRef}
       aria-labelledby="landing-how-title"
       className="px-4 py-14 sm:px-6 sm:py-16 lg:px-12 xl:px-16"
     >
@@ -39,9 +66,12 @@ export function LandingHowItWorks() {
         </p>
       </div>
 
-      <ol className="how-steps mt-10 grid gap-5 sm:grid-cols-3 sm:gap-4 lg:gap-5">
+      <ol className="how-steps mt-10 grid gap-8 sm:grid-cols-3 sm:gap-6 lg:gap-8">
         {HOW_IT_WORKS.map((step, index) => {
-          const isActive = reduceMotion || index === activeIndex;
+          // Reduced motion keeps every card lit; otherwise the in-view section
+          // spotlights one step at a time. Only that step's miniature animates.
+          const isActive = reduceMotion || (inView && index === activeIndex);
+          const playing = !reduceMotion && inView && index === activeIndex;
 
           return (
             <li
@@ -49,17 +79,14 @@ export function LandingHowItWorks() {
               className={`how-steps__card min-w-0${isActive ? ' how-steps__card--active' : ''}`}
               aria-current={isActive && !reduceMotion ? 'step' : undefined}
             >
-              <article className="flex h-full flex-col overflow-hidden rounded-2xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm)">
-                {/* Illustration slot — swap this block for real art later */}
-                <div className="relative aspect-4/3 bg-(--color-accent-soft)" aria-hidden>
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="font-numeric text-4xl font-semibold tracking-tight text-(--color-accent)/35">
-                      {String(index + 1).padStart(2, '0')}
-                    </span>
-                  </div>
+              <article className="flex h-full flex-col">
+                <div className="relative flex aspect-4/3 items-center justify-center" aria-hidden>
+                  {index === 0 && <AccountIllustration playing={playing} />}
+                  {index === 1 && <InventoryIllustration playing={playing} />}
+                  {index === 2 && <CampaignIllustration playing={playing} />}
                 </div>
 
-                <div className="flex flex-1 flex-col gap-2 p-5 sm:p-6">
+                <div className="flex flex-1 flex-col gap-2 pt-1">
                   <h3 className="text-base font-semibold tracking-tight text-(--color-foreground)">
                     {step.title}
                   </h3>

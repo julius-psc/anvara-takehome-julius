@@ -195,7 +195,7 @@
     transition: transform 300ms var(--ease-out);
   }
 
-  /* Landing — How it works: auto-cycled spotlight via opacity (no scale) */
+  /* Landing — How it works: dim non-active steps, spotlight the active one. */
   .how-steps__card {
     opacity: 0.4;
     transition: opacity var(--duration-panel) var(--ease-out);
@@ -204,6 +204,343 @@
   .how-steps__card--active {
     opacity: 1;
   }
+
+  /* Product-UI miniatures. Each rests on its finished frame; the active,
+     in-view step replays its transition once via .how-illu--playing. */
+  .how-illu {
+    position: relative;
+    display: flex;
+    width: 100%;
+    max-width: 17rem;
+    height: 11rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+  }
+
+  /* Shared mini card shell — mirrors AdSlotCard / CampaignCard. */
+  .how-illu__card {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.6rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.8rem 0.9rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .how-illu__card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .how-illu__card-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-foreground);
+  }
+
+  .how-illu__card-bottom {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  /* Badge replica — soft fill + inset ring, one class per tone. */
+  .how-illu__chip {
+    border-radius: 9999px;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.625rem;
+    font-weight: 500;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
+  }
+  .how-illu__chip--info {
+    background: var(--color-info-soft);
+    color: var(--color-info);
+  }
+  .how-illu__chip--warning {
+    background: var(--color-warning-soft);
+    color: var(--color-warning);
+  }
+
+  /* Availability line — dot + label, like the real card. */
+  .how-illu__avail {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+  }
+  .how-illu__avail--free {
+    color: var(--color-success);
+  }
+  .how-illu__avail--booked {
+    color: var(--color-muted);
+  }
+  .how-illu__dot {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 9999px;
+  }
+  .how-illu__dot--free {
+    background: var(--color-success);
+  }
+  .how-illu__dot--booked {
+    background: var(--color-subtle);
+  }
+
+  .how-illu__price {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-foreground);
+  }
+  .how-illu__price small {
+    font-size: 0.625rem;
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+
+  /* ——— 01 Create your account ——— */
+  .how-illu--account {
+    gap: 1rem;
+  }
+
+  .how-illu__toggle {
+    position: relative;
+    display: inline-flex;
+    gap: 0.15rem;
+    border-radius: 0.7rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.25rem;
+  }
+  .how-illu__toggle-pill {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0.25rem;
+    width: calc(50% - 0.25rem);
+    border-radius: 0.55rem;
+    background: var(--color-accent);
+    box-shadow: var(--shadow-sm);
+    transform: translateX(0);
+  }
+  .how-illu__toggle-opt {
+    position: relative;
+    z-index: 1;
+    width: 4.4rem;
+    padding: 0.32rem 0;
+    text-align: center;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .how-illu__toggle-opt--sponsor {
+    color: var(--color-on-primary);
+  }
+
+  .how-illu__dash {
+    display: flex;
+    width: 10.4rem;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 0.7rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.55rem 0.65rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .how-illu__dash-avatar {
+    width: 1.35rem;
+    height: 1.35rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+    background: var(--color-accent);
+  }
+  .how-illu__dash-lines {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .how-illu__dash-line {
+    height: 0.4rem;
+    border-radius: 9999px;
+    background: var(--color-border-strong);
+  }
+  .how-illu__dash-line--short {
+    width: 55%;
+    background: var(--color-border);
+  }
+
+  .how-illu__cursor {
+    position: absolute;
+    left: 50%;
+    top: 1.1rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    color: var(--color-foreground);
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.25));
+    opacity: 0;
+    transform: translate(1.7rem, 1.8rem);
+  }
+
+  .how-illu--account.how-illu--playing .how-illu__toggle-pill {
+    animation: how-role-pill 3s var(--ease-out) forwards;
+  }
+  .how-illu--account.how-illu--playing .how-illu__toggle-opt--sponsor {
+    animation: how-role-opt-sponsor 3s var(--ease-out) forwards;
+  }
+  .how-illu--account.how-illu--playing .how-illu__toggle-opt--publisher {
+    animation: how-role-opt-publisher 3s var(--ease-out) forwards;
+  }
+  .how-illu--account.how-illu--playing .how-illu__dash {
+    animation: how-role-dash 3s var(--ease-out) forwards;
+  }
+  .how-illu--account.how-illu--playing .how-illu__cursor {
+    animation: how-role-cursor 3s var(--ease-out) forwards;
+  }
+
+  /* ——— 02 List or browse inventory ——— */
+  .how-illu--inventory {
+    gap: 0.65rem;
+  }
+  .how-illu--inventory .how-illu__card {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .how-illu--inventory.how-illu--playing .how-illu__card--1 {
+    animation: how-slot-in 2.6s var(--ease-out) forwards;
+  }
+  .how-illu--inventory.how-illu--playing .how-illu__card--2 {
+    animation: how-slot-in 2.6s var(--ease-out) 0.18s backwards;
+  }
+
+  /* ——— 03 Book and run campaigns ——— */
+  .how-illu__status {
+    position: relative;
+    display: inline-flex;
+    min-width: 4.6rem;
+    justify-content: flex-end;
+  }
+  .how-illu__status .how-illu__avail {
+    justify-content: flex-end;
+  }
+  .how-illu__status .how-illu__avail--free {
+    position: absolute;
+    inset: 0;
+    justify-content: flex-end;
+    opacity: 0;
+  }
+  .how-illu__status .how-illu__avail--booked {
+    opacity: 1;
+  }
+
+  .how-illu__budget {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .how-illu__budget-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .how-illu__budget-spent {
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-foreground);
+  }
+  .how-illu__budget-spent small {
+    font-size: 0.625rem;
+    font-weight: 400;
+    color: var(--color-muted);
+  }
+  .how-illu__budget-total {
+    font-family: var(--font-mono);
+    font-size: 0.625rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+  }
+  .how-illu__bar {
+    height: 0.32rem;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 9999px;
+    background: var(--color-border);
+  }
+  .how-illu__bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--color-accent);
+    transform: scaleX(0.7);
+    transform-origin: left center;
+  }
+
+  .how-illu--campaign.how-illu--playing .how-illu__avail--free {
+    animation: how-book-free 2.8s var(--ease-out) forwards;
+  }
+  .how-illu--campaign.how-illu--playing .how-illu__avail--booked {
+    animation: how-book-booked 2.8s var(--ease-out) forwards;
+  }
+  .how-illu--campaign.how-illu--playing .how-illu__bar-fill {
+    animation: how-book-fill 2.8s var(--ease-out) forwards;
+  }
+}
+
+/* How-it-works miniatures — each plays its transition once, then holds. */
+@keyframes how-role-pill {
+  0%, 22% { transform: translateX(100%); }
+  42%, 100% { transform: translateX(0); }
+}
+@keyframes how-role-opt-sponsor {
+  0%, 22% { color: var(--color-muted); }
+  42%, 100% { color: var(--color-on-primary); }
+}
+@keyframes how-role-opt-publisher {
+  0%, 22% { color: var(--color-on-primary); }
+  42%, 100% { color: var(--color-muted); }
+}
+@keyframes how-role-cursor {
+  0% { opacity: 0; transform: translate(1.7rem, 1.8rem) scale(1); }
+  18% { opacity: 1; transform: translate(1.7rem, 1.8rem) scale(1); }
+  36% { opacity: 1; transform: translate(-2.2rem, 0.3rem) scale(1); }
+  44% { transform: translate(-2.2rem, 0.3rem) scale(0.82); }
+  52% { transform: translate(-2.2rem, 0.3rem) scale(1); }
+  82% { opacity: 1; transform: translate(-2.2rem, 0.3rem) scale(1); }
+  100% { opacity: 0; transform: translate(-2.2rem, 0.3rem) scale(1); }
+}
+@keyframes how-role-dash {
+  0%, 42% { opacity: 0; transform: translateY(0.5rem); }
+  62%, 100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes how-slot-in {
+  0% { opacity: 0; transform: translateY(0.6rem); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes how-book-free {
+  0%, 30% { opacity: 1; }
+  46%, 100% { opacity: 0; }
+}
+@keyframes how-book-booked {
+  0%, 40% { opacity: 0; }
+  56%, 100% { opacity: 1; }
+}
+@keyframes how-book-fill {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(0.7); }
 }
 
 @layer utilities {
@@ -240,6 +577,16 @@
 
   .progress-fill {
     transition: none;
+  }
+
+  /* Miniatures already rest on their finished frame — just guarantee no motion
+     and hide the pointer cursor. */
+  .how-illu--playing * {
+    animation: none !important;
+  }
+
+  .how-illu__cursor {
+    display: none;
   }
 }
 
