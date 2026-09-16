@@ -1,27 +1,38 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
+import { GeistSans } from 'geist/font/sans';
+import { GeistMono } from 'geist/font/mono';
 import './globals.css';
 import { Nav } from './components/nav';
 
-// TODO: Add ErrorBoundary wrapper for graceful error handling
-// TODO: Consider adding a loading.tsx for Suspense boundaries
-// TODO: Add Open Graph metadata for social media sharing
-// TODO: Add Twitter Card metadata
-// TODO: Consider adding favicon and app icons
-
 export const metadata: Metadata = {
-  title: 'Anvara Marketplace',
-  description: 'Sponsorship marketplace connecting sponsors with publishers',
-  // Missing: openGraph, twitter, icons, viewport, etc.
+  title: {
+    default: 'Anvara — Sponsorship Marketplace',
+    template: '%s · Anvara',
+  },
+  description: 'The marketplace connecting sponsors with publishers.',
+  openGraph: {
+    title: 'Anvara — Sponsorship Marketplace',
+    description: 'The marketplace connecting sponsors with publishers.',
+    type: 'website',
+    siteName: 'Anvara',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Anvara — Sponsorship Marketplace',
+    description: 'The marketplace connecting sponsors with publishers.',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#fbfbfa',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  // HINT: If using React Query, you would wrap children with QueryClientProvider here
-  // See: https://tanstack.com/query/latest/docs/framework/react/guides/advanced-ssr
   return (
-    <html lang="en">
+    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
       <body className="min-h-screen antialiased">
         <Nav />
-        <main className="mx-auto max-w-6xl p-4">{children}</main>
+        <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6">{children}</main>
       </body>
     </html>
   );

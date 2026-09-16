@@ -1,63 +1,105 @@
 @import 'tailwindcss';
 
 /*
- * Tailwind CSS v4 - CSS-first configuration
- * No tailwind.config.js needed! Use CSS custom properties for theming.
- * Modern 2026 best practices: Oxide engine for faster builds, CSS vars for themes.
+ * Anvara design tokens — a clean, minimal (Vercel/Linear-inspired) system:
+ * warm-neutral scale, near-black primary actions, one restrained blue accent.
+ * Components reference these via Tailwind arbitrary values, e.g. bg-[--color-surface].
  */
-
-/* Custom theme variables - modify these to customize the marketplace look */
 :root {
-  /* Primary brand colors */
-  --color-primary: #6366f1;
-  --color-primary-hover: #4f46e5;
-  --color-primary-light: #818cf8;
+  /* Neutral scale (warm-tinted) */
+  --color-background: #fbfbfa; /* app background (off-white) */
+  --color-surface: #ffffff; /* cards / panels */
+  --color-surface-hover: #f7f7f6;
+  --color-foreground: #1a1a1a; /* near-black text */
+  --color-muted: #737373; /* secondary text */
+  --color-subtle: #a3a3a3; /* tertiary text */
+  --color-border: #ececec; /* hairline border */
+  --color-border-strong: #dcdcdc;
 
-  /* Secondary colors */
-  --color-secondary: #10b981;
-  --color-secondary-hover: #059669;
+  /* Primary = Anvara brand blue (matches the real anvara.com button) */
+  --color-primary: #2346f9;
+  --color-primary-hover: #1e3fd8;
+  --color-primary-light: #3556ff;
+  --gradient-primary: linear-gradient(180deg, #3556ff 0%, #2346f9 100%);
 
-  /* Neutral colors */
-  --color-background: #ffffff;
-  --color-foreground: #0f172a;
-  --color-muted: #64748b;
-  --color-border: #e2e8f0;
+  /* Accent = brand blue for links / focus / active / progress */
+  --color-accent: #2346f9;
+  --color-accent-hover: #1e3fd8;
+  --color-accent-soft: #eef2ff;
 
-  /* Status colors */
-  --color-success: #22c55e;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
+  --color-secondary: #16a34a;
+  --color-secondary-hover: #15803d;
 
-  /* Spacing */
+  /* Status */
+  --color-success: #16a34a;
+  --color-success-soft: #ecfdf3;
+  --color-warning: #b45309;
+  --color-warning-soft: #fff7ed;
+  --color-error: #dc2626;
+  --color-error-soft: #fef2f2;
+
+  /* Typography (Geist, wired up in layout.tsx) */
+  --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, 'SF Mono', monospace;
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
+  --shadow-md: 0 2px 8px -2px rgb(0 0 0 / 0.06), 0 4px 16px -4px rgb(0 0 0 / 0.05);
+
   --spacing-container: 1rem;
 }
 
-/* Dark mode support - TODO: Implement dark mode toggle */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-background: #0f172a;
-    --color-foreground: #f8fafc;
-    --color-muted: #94a3b8;
-    --color-border: #334155;
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background-color: var(--color-accent);
+    color: #ffffff;
   }
 }
 
-/* Base styles */
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
-  font-family:
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+@layer components {
+  /* Primary button — replicates the real anvara.com CTA: brand-blue gradient
+     with a soft inset white glow. Layout (padding/radius/size) comes from the
+     element's own utility classes. */
+  .btn-primary {
+    background-image: var(--gradient-primary);
+    box-shadow: inset 0 0 24px 0 rgb(255 255 255 / 0.2);
+    color: #ffffff;
+    transition:
+      filter 150ms ease,
+      transform 100ms ease;
+  }
+  .btn-primary:hover {
+    filter: brightness(1.06);
+  }
+  .btn-primary:active {
+    transform: translateY(0.5px);
+    filter: brightness(0.98);
+  }
+  .btn-primary:disabled {
+    opacity: 0.55;
+    filter: none;
+    cursor: not-allowed;
+  }
 }
 
-/*
- * HINT: Use Tailwind v4 arbitrary values with CSS vars:
- * - bg-[--color-primary] for custom backgrounds
- * - text-[--color-foreground] for custom text colors
- * - p-[--spacing-container] for custom spacing
- */
+@layer utilities {
+  /* Tabular monospace figures for data (budgets, prices, stats). */
+  .font-numeric {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+}
