@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import { getUserRole } from '@/lib/auth-helpers';
 import { CampaignList } from './components/campaign-list';
 import { CampaignListSkeleton } from './components/campaign-list-skeleton';
+import { CampaignFormModal } from './components/campaign-form-modal';
 
 export default async function SponsorDashboard() {
   const session = await auth.api.getSession({
@@ -26,7 +27,7 @@ export default async function SponsorDashboard() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Campaigns</h1>
-        {/* TODO: Add CreateCampaignButton here (Challenge 5) */}
+        <CampaignFormModal triggerLabel="Create campaign" />
       </div>
 
       {/* Shell renders immediately; the campaign list streams in when ready. */}

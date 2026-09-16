@@ -1,4 +1,6 @@
 import type { Campaign } from '@/lib/types';
+import { CampaignFormModal } from './campaign-form-modal';
+import { DeleteCampaignButton } from './delete-campaign-button';
 
 interface CampaignCardProps {
   campaign: Campaign;
@@ -50,7 +52,14 @@ export function CampaignCard({ campaign }: CampaignCardProps) {
         {new Date(campaign.endDate).toLocaleDateString()}
       </div>
 
-      {/* TODO: Add edit/view buttons */}
+      <div className="mt-3 flex items-center justify-between border-t border-[--color-border] pt-2">
+        <CampaignFormModal
+          campaign={campaign}
+          triggerLabel="Edit"
+          triggerClassName="rounded px-3 py-1.5 text-sm text-[--color-primary] hover:bg-gray-50"
+        />
+        <DeleteCampaignButton id={campaign.id} />
+      </div>
     </div>
   );
 }
