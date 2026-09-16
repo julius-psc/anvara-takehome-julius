@@ -49,3 +49,7 @@ test-results/
 
 # TypeScript build cache
 *.tsbuildinfo
+
+# Claude Code
+.claude/
+skills-lock.json

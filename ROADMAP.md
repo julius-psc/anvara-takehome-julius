@@ -94,6 +94,10 @@ After these changes, and checking the sponsor dashboard page's source, Q1 Produc
 
 Done :-))
 
+### Later: extended the same pattern to the marketplace
+
+While polishing the marketplace UI I noticed it was still fetching client-side (useEffect in the grid) — the FIXME in page.tsx even called it out. So I gave it the same treatment as the dashboards: added getMarketplaceAdSlots() in lib/data.ts (server fetch of the public /api/ad-slots, no cookie needed, no-store so availability stays fresh), turned the grid into an async Server Component, wrapped it in <Suspense> with a matching skeleton, and added a marketplace error.tsx boundary. So the marketplace now streams server-rendered too. (The detail page [id] still fetches client-side — it has the book/unbook interactivity so it needs a server/client split; noted as follow-up.)
+
 ---
 
 ## Challenge 3
@@ -190,6 +194,10 @@ Here, I implemented the same 3 pattern security as campaigns, but just with publ
 ### Security note I want to flag (book/unbook)
 
 While securing the ad-slots I noticed POST /api/ad-slots/:id/book and /unbook are still unauthenticated and trust a sponsorId from the request body, so technically anyone could mark a slot (un)available. I deliberately scoped these out for now: the booking flow is a stub (it doesn't create a real Placement record yet) and locking it down properly means designing that model + it touches the public marketplace "book" action. I flagged it directly in the code with a SECURITY TODO comment. The fix would follow the exact same pattern as everything else: require an authenticated sponsor and take sponsorId from the session, not the body. So this is a KNOWN + identified gap, not a missed one.
+
+**Update — closed the /book gap.** Came back and secured POST /api/ad-slots/:id/book properly: it now runs through requireAuth and derives sponsorId from the session (403 for non-sponsors), instead of trusting the body. Two supporting changes were needed to make a cross-origin authenticated request actually work: (1) CORS had to stop using the wildcard default — a wildcard origin can't be combined with credentials — so I pinned it to the frontend origin (BETTER_AUTH_URL) with credentials: true (this also cleared the CORS FIXME); (2) the frontend booking fetch now sends credentials: 'include' and no longer passes sponsorId in the body. Booking still just flips availability (Placement model is still a stub) — but the security-critical "who is booking" is now trustworthy.
+
+**Also closed /unbook.** Went ahead and locked down /unbook too so there are no open auth holes left. Authorization model: only the **owning publisher** can reset a slot — resetting availability is editing your own inventory, so it reuses the exact ownership check as PUT/DELETE (requireAuth + findFirst on { id, publisherId }, 404 if not yours). Frontend: the unbook fetch sends credentials, the "Reset listing" link now only renders for the publisher who owns the slot (roleInfo.publisherId === adSlot.publisher.id), and I removed the old sponsor-facing "reset for testing" button (a sponsor legitimately can't reset a publisher's inventory, so it would've just 403'd). Net result: both book and unbook are fully authenticated + authorized, no SECURITY TODOs left in the codebase.
 
 ### Part 5
 
@@ -301,21 +309,3 @@ Once lint actually ran, I fixed the real errors: turned off no-undef for TS file
 Done :-)))))
 
 ---
-
-## BONUS Challenge 1 - Design & UX
-
-
-
----
-
-## Dashboard UI/UX redesign (design bonus)
-
-Direction: clean & minimal (Vercel/Linear), on Anvara's brand.
-
-- Design system: Geist font + Geist Mono for tabular numbers (budgets/prices/dates), warm-neutral token scale, hairline borders.
-- Matched Anvara's real primary button (blue gradient + inset white glow) as a reusable .btn-primary.
-- Nav: clean sticky header with active-link states via usePathname (cleared a TODO).
-- Both dashboards: summary stat cards for information hierarchy, redesigned cards (pill badges, brand-blue progress bar, hover elevation), delightful empty states, matching loading skeletons.
-- Metadata: proper OG/Twitter/viewport (cleared the layout.tsx TODOs).
-
-Rolls in bonuses: Dashboard UI/UX, Error & Empty States, and part of Animations. Still to do: toast notifications + motion polish.
