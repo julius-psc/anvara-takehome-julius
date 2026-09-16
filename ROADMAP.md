@@ -292,3 +292,10 @@ Amazing, after testing it all seems to work perfectly !!
 
 So i made a quick design decision: the docs suggest to use  useFormState/useFormStatus but I decided to use React Hook Form and Zod instead because they both solve the same problem, so it's redundant. RHF owns client-side form state + validation and gives isSubmitting for the pending state. The Server Action re-validates with the same Zod schema (so basically client= UX and server= the real gate). 
 
+---
+
+## Fixing the ESLint toolchain (ESLint bonus)
+
+pnpm lint was crashing before it even read my code: typescript-eslint 8.66 doesn't support TS 7.0. So i fixed it by pinning TypeScript to 5.7.3 (a supported version) - typecheck still passes. A second crash was eslint-plugin-react's version auto-detect calling context.getFilename(), removed in ESLint 10, so I pinned react.version to "19.0" to skip detection.
+
+Once lint actually ran, I fixed the real errors: turned off no-undef for TS files (typescript-eslint's own recommendation - TS catches undefined refs, no-undef just misfires on process/RequestInit/React), typed the remaining `any` in lib/api.ts + the marketplace grid, removed dead code/unused imports, and fixed a genuine react-hooks/set-state-in-effect issue in nav.tsx (made the role fetch cancellation-safe). Result: pnpm lint passes, 0 errors.
