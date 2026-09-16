@@ -11,8 +11,8 @@ export async function CampaignList() {
 
   if (campaigns.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-[--color-border-strong] bg-[--color-surface] px-6 py-16 text-center">
-        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-[--color-surface-hover] text-[--color-muted]">
+      <div className="rounded-xl border border-dashed border-(--color-border-strong) bg-(--color-surface) px-6 py-16 text-center">
+        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-(--color-surface-hover) text-(--color-muted)">
           <svg
             width="20"
             height="20"
@@ -27,7 +27,7 @@ export async function CampaignList() {
           </svg>
         </div>
         <h3 className="mt-4 text-sm font-medium">No campaigns yet</h3>
-        <p className="mx-auto mt-1 max-w-sm text-sm text-[--color-muted]">
+        <p className="mx-auto mt-1 max-w-sm text-pretty text-sm text-(--color-muted)">
           Create your first campaign to start reaching publishers across the marketplace.
         </p>
         <div className="mt-5 flex justify-center">

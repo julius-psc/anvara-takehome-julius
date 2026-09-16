@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { adSlotSchema, type AdSlotInput, AD_SLOT_TYPES } from '@/lib/schemas';
+import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
 import type { AdSlot } from '@/lib/types';
 import { createAdSlot, updateAdSlot } from '../actions';
 
@@ -50,8 +51,10 @@ export function AdSlotForm({ adSlot, onDone }: AdSlotFormProps) {
     setServerError(result.error);
   });
 
+  // text-base on mobile prevents iOS Safari's focus-zoom; sm:text-sm keeps the
+  // intended density on larger screens.
   const inputCls =
-    'mt-1 w-full rounded border border-[--color-border] bg-white px-3 py-2 text-sm text-gray-900';
+    'mt-1 w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-base text-(--color-foreground) transition-colors focus:border-(--color-accent) focus:outline-none focus:ring-2 focus:ring-(--color-accent-soft) sm:text-sm';
   const errCls = 'mt-1 text-xs text-red-600';
 
   return (
@@ -64,37 +67,56 @@ export function AdSlotForm({ adSlot, onDone }: AdSlotFormProps) {
 
       <div>
         <label className="block text-sm font-medium">Name</label>
-        <input {...register('name')} className={inputCls} />
+        <input
+          {...register('name')}
+          placeholder="e.g. Homepage top banner"
+          className={inputCls}
+        />
         {errors.name && <p className={errCls}>{errors.name.message}</p>}
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-sm font-medium">Type</label>
-          <select {...register('type')} className={inputCls}>
-            {AD_SLOT_TYPES.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          {errors.type && <p className={errCls}>{errors.type.message}</p>}
+      <div>
+        <span className="block text-sm font-medium">Type</span>
+        {/* Radio group styled as icon chips: native radios keep it accessible and
+            wired to RHF via register, while the label chips carry the visuals. */}
+        <div className="mt-1.5 grid grid-cols-3 gap-2">
+          {AD_SLOT_TYPES.map((t) => {
+            const meta = AD_SLOT_TYPE_META[t];
+            const Icon = meta.icon;
+            return (
+              <label key={t} className="cursor-pointer">
+                <input type="radio" value={t} {...register('type')} className="peer sr-only" />
+                <span className="flex flex-col items-center gap-1 rounded-lg border border-(--color-border) px-2 py-2.5 text-xs text-(--color-muted) transition-colors hover:border-(--color-border-strong) peer-checked:border-(--color-accent) peer-checked:bg-(--color-accent-soft) peer-checked:text-(--color-accent) peer-focus-visible:ring-2 peer-focus-visible:ring-(--color-accent-soft)">
+                  <Icon size={18} stroke={1.5} />
+                  {meta.label}
+                </span>
+              </label>
+            );
+          })}
         </div>
-        <div>
-          <label className="block text-sm font-medium">Base price ($/mo)</label>
-          <input
-            type="number"
-            step="0.01"
-            {...register('basePrice', { valueAsNumber: true })}
-            className={inputCls}
-          />
-          {errors.basePrice && <p className={errCls}>{errors.basePrice.message}</p>}
-        </div>
+        {errors.type && <p className={errCls}>{errors.type.message}</p>}
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium">Base price ($/mo)</label>
+        <input
+          type="number"
+          step="0.01"
+          placeholder="0.00"
+          {...register('basePrice', { valueAsNumber: true })}
+          className={inputCls}
+        />
+        {errors.basePrice && <p className={errCls}>{errors.basePrice.message}</p>}
       </div>
 
       <div>
         <label className="block text-sm font-medium">Description</label>
-        <textarea {...register('description')} rows={2} className={inputCls} />
+        <textarea
+          {...register('description')}
+          rows={2}
+          placeholder="e.g. Above-the-fold banner, 728×90, ~50k impressions/mo"
+          className={inputCls}
+        />
         {errors.description && <p className={errCls}>{errors.description.message}</p>}
       </div>
 

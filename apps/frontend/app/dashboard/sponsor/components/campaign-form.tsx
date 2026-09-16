@@ -12,6 +12,12 @@ function toDateInputValue(iso: string): string {
   return iso ? new Date(iso).toISOString().slice(0, 10) : '';
 }
 
+// Turn a raw enum like "PENDING_REVIEW" into a readable "Pending review".
+function formatStatusLabel(status: string): string {
+  const words = status.toLowerCase().replace(/_/g, ' ');
+  return words.charAt(0).toUpperCase() + words.slice(1);
+}
+
 interface CampaignFormProps {
   campaign?: Campaign; // present => edit mode
   onDone: () => void; // called after a successful submit (closes the modal)
@@ -57,8 +63,10 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
     setServerError(result.error);
   });
 
+  // text-base on mobile prevents iOS Safari's focus-zoom; sm:text-sm keeps the
+  // intended density on larger screens.
   const inputCls =
-    'mt-1 w-full rounded border border-[--color-border] bg-white px-3 py-2 text-sm text-gray-900';
+    'mt-1 w-full rounded-md border border-(--color-border) bg-(--color-surface) px-3 py-2 text-base text-(--color-foreground) transition-colors focus:border-(--color-accent) focus:outline-none focus:ring-2 focus:ring-(--color-accent-soft) sm:text-sm';
   const errCls = 'mt-1 text-xs text-red-600';
 
   return (
@@ -111,7 +119,7 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
           <select {...register('status')} className={inputCls}>
             {CAMPAIGN_STATUSES.map((s) => (
               <option key={s} value={s}>
-                {s}
+                {formatStatusLabel(s)}
               </option>
             ))}
           </select>

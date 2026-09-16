@@ -28,7 +28,7 @@ export default async function SponsorDashboard() {
       <div className="flex items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight">Campaigns</h1>
-          <p className="mt-0.5 text-sm text-[--color-muted]">Manage your sponsorship campaigns.</p>
+          <p className="mt-0.5 text-sm text-(--color-muted)">Manage your sponsorship campaigns.</p>
         </div>
         <CampaignFormModal triggerLabel="Create campaign" />
       </div>

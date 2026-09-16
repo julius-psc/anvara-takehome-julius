@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import type { Campaign } from '@/lib/types';
+import { Modal } from '@/app/components/modal';
 import { CampaignForm } from './campaign-form';
 
 interface CampaignFormModalProps {
@@ -23,29 +24,18 @@ export function CampaignFormModal({
     <>
       <button
         onClick={() => setOpen(true)}
-        className={
-          triggerClassName ??
-          'btn-primary rounded-lg px-4 py-2 text-sm font-semibold'
-        }
+        className={triggerClassName ?? 'btn-primary rounded-lg px-4 py-2 text-sm font-semibold'}
       >
         {triggerLabel}
       </button>
 
-      {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setOpen(false)}
-            aria-hidden="true"
-          />
-          <div className="relative z-10 w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-            <h2 className="mb-4 text-lg font-bold">
-              {campaign ? 'Edit campaign' : 'Create campaign'}
-            </h2>
-            <CampaignForm campaign={campaign} onDone={() => setOpen(false)} />
-          </div>
-        </div>
-      )}
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={campaign ? 'Edit campaign' : 'Create campaign'}
+      >
+        <CampaignForm campaign={campaign} onDone={() => setOpen(false)} />
+      </Modal>
     </>
   );
 }
