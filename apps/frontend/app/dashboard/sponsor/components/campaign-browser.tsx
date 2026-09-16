@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import type { Campaign } from '@/lib/types';
 import { ViewToggle } from '@/app/components/view-toggle';
+import { FilterTabs } from '@/app/components/filter-tabs';
 import { useViewPreference } from '@/lib/use-view-preference';
 import { formatStatusLabel } from '@/lib/campaign-meta';
+import { Pagination, usePagination } from '@/app/components/pagination';
+import { EmptyState } from '@/app/components/empty-state';
 import { CampaignCard } from './campaign-card';
 import { CampaignRow } from './campaign-row';
 
@@ -34,53 +37,49 @@ export function CampaignBrowser({ campaigns }: { campaigns: Campaign[] }) {
     COMPLETED: campaigns.filter((c) => c.status === 'COMPLETED').length,
   };
   const shown = filter === 'all' ? campaigns : campaigns.filter((c) => c.status === filter);
+  const { page, setPage, pageSize, slice } = usePagination(shown.length, filter);
+  const pageItems = slice(shown);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div role="tablist" aria-label="Filter campaigns" className="flex items-center gap-1">
-          {FILTERS.map(({ key, label }) => {
-            const active = filter === key;
-            return (
-              <button
-                key={key}
-                role="tab"
-                aria-selected={active}
-                onClick={() => setFilter(key)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                  active
-                    ? 'bg-(--color-foreground) text-white'
-                    : 'text-(--color-muted) hover:bg-(--color-surface-hover) hover:text-(--color-foreground)'
-                }`}
-              >
-                {label}
-                <span className={`font-numeric ${active ? 'text-white/60' : 'text-(--color-subtle)'}`}>
-                  {counts[key]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+        <FilterTabs
+          aria-label="Filter campaigns"
+          layoutId="campaign-filter-pill"
+          value={filter}
+          onChange={setFilter}
+          options={FILTERS.map(({ key, label }) => ({
+            key,
+            label,
+            count: counts[key],
+          }))}
+        />
 
         <ViewToggle view={view} onChange={setView} />
       </div>
 
       {shown.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-(--color-border-strong) bg-(--color-surface) px-6 py-12 text-center text-sm text-(--color-muted)">
-          No {filter === 'all' ? '' : formatStatusLabel(filter).toLowerCase() + ' '}campaigns.
-        </p>
-      ) : view === 'card' ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((campaign) => (
-            <CampaignCard key={campaign.id} campaign={campaign} />
-          ))}
-        </div>
+        <EmptyState
+          title={`No ${filter === 'all' ? '' : formatStatusLabel(filter).toLowerCase() + ' '}campaigns`}
+          description="Try a different filter, or create a new campaign to get started."
+        />
       ) : (
-        <ul className="divide-y divide-(--color-border) rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm)">
-          {shown.map((campaign) => (
-            <CampaignRow key={campaign.id} campaign={campaign} />
-          ))}
-        </ul>
+        <>
+          {view === 'card' ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {pageItems.map((campaign) => (
+                <CampaignCard key={campaign.id} campaign={campaign} />
+              ))}
+            </div>
+          ) : (
+            <ul className="divide-y divide-(--color-border) rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm) [&>li:first-child]:rounded-t-xl [&>li:last-child]:rounded-b-xl">
+              {pageItems.map((campaign) => (
+                <CampaignRow key={campaign.id} campaign={campaign} />
+              ))}
+            </ul>
+          )}
+          <Pagination page={page} pageSize={pageSize} total={shown.length} onPageChange={setPage} />
+        </>
       )}
     </div>
   );

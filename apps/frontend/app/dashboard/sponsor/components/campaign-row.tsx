@@ -40,7 +40,7 @@ export function CampaignRow({ campaign }: { campaign: Campaign }) {
         </button>
         <div
           role="tooltip"
-          className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded-md bg-(--color-foreground) px-2 py-1 font-numeric text-xs whitespace-nowrap text-(--color-surface) opacity-0 shadow-(--shadow-sm) transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-within:opacity-100"
+          className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 rounded-md bg-(--color-foreground) px-2 py-1 font-numeric text-xs whitespace-nowrap text-(--color-surface) opacity-0 shadow-(--shadow-sm) transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-within:opacity-100"
         >
           {dateLabel}
         </div>
@@ -62,13 +62,15 @@ export function CampaignRow({ campaign }: { campaign: Campaign }) {
         </div>
         <div
           role="tooltip"
-          className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 rounded-md bg-(--color-foreground) px-2 py-1 font-numeric text-xs whitespace-nowrap text-(--color-surface) opacity-0 shadow-(--shadow-sm) transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-within:opacity-100"
+          className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 rounded-md bg-(--color-foreground) px-2 py-1 font-numeric text-xs whitespace-nowrap text-(--color-surface) opacity-0 shadow-(--shadow-sm) transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-within:opacity-100"
         >
           {spendLabel}
         </div>
       </div>
 
-      <CampaignActions campaign={campaign} />
+      <div className="flex h-7 shrink-0 items-center">
+        <CampaignActions campaign={campaign} />
+      </div>
     </li>
   );
 }

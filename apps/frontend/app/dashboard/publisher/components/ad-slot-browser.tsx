@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import type { AdSlot } from '@/lib/types';
 import { ViewToggle } from '@/app/components/view-toggle';
+import { FilterTabs } from '@/app/components/filter-tabs';
 import { useViewPreference } from '@/lib/use-view-preference';
 import { AD_SLOT_TYPE_META } from '@/lib/ad-slot-meta';
+import { Pagination, usePagination } from '@/app/components/pagination';
+import { EmptyState } from '@/app/components/empty-state';
 import { AdSlotCard } from './ad-slot-card';
 import { AdSlotRow } from './ad-slot-row';
 
@@ -25,23 +28,12 @@ const TYPE_FILTERS: { key: TypeFilter; label: string }[] = [
   })),
 ];
 
-function chipClass(active: boolean) {
-  return `inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-    active
-      ? 'bg-(--color-foreground) text-white'
-      : 'text-(--color-muted) hover:bg-(--color-surface-hover) hover:text-(--color-foreground)'
-  }`;
-}
-
 // Client-side status + type filters and view toggle over server-fetched ad slots.
-// Data still streams from the Server Component; this only owns which subset is
-// shown and how. The view choice persists across reloads.
 export function AdSlotBrowser({ adSlots }: { adSlots: AdSlot[] }) {
   const [status, setStatus] = useState<StatusFilter>('all');
   const [type, setType] = useState<TypeFilter>('all');
   const [view, setView] = useViewPreference('anvara.publisher.view');
 
-  // Each filter's counts respect the other axis, so tabs stay honest as you narrow.
   const byStatus =
     status === 'available'
       ? adSlots.filter((s) => s.isAvailable)
@@ -65,81 +57,67 @@ export function AdSlotBrowser({ adSlots }: { adSlots: AdSlot[] }) {
   };
 
   const shown = byStatus.filter((s) => (type === 'all' ? true : s.type === type));
-
-  const emptyLabel = [
-    status !== 'all' ? status : null,
-    type !== 'all' ? AD_SLOT_TYPE_META[type]?.label.toLowerCase() : null,
-    'ad slots',
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const { page, setPage, pageSize, slice } = usePagination(shown.length, `${status}:${type}`);
+  const pageItems = slice(shown);
 
   return (
     <div className="space-y-6">
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div role="tablist" aria-label="Filter by availability" className="flex flex-wrap items-center gap-1">
-            {STATUS_FILTERS.map(({ key, label }) => {
-              const active = status === key;
-              return (
-                <button
-                  key={key}
-                  role="tab"
-                  aria-selected={active}
-                  onClick={() => setStatus(key)}
-                  className={chipClass(active)}
-                >
-                  {label}
-                  <span className={`font-numeric ${active ? 'text-white/60' : 'text-(--color-subtle)'}`}>
-                    {statusCounts[key]}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
+          <FilterTabs
+            aria-label="Filter by availability"
+            layoutId="publisher-status-pill"
+            value={status}
+            onChange={setStatus}
+            options={STATUS_FILTERS.map(({ key, label }) => ({
+              key,
+              label,
+              count: statusCounts[key],
+            }))}
+          />
 
           <ViewToggle view={view} onChange={setView} />
         </div>
 
-        <div role="tablist" aria-label="Filter by type" className="flex flex-wrap items-center gap-1">
-          {TYPE_FILTERS.map(({ key, label }) => {
-            const active = type === key;
+        <FilterTabs
+          aria-label="Filter by type"
+          layoutId="publisher-type-pill"
+          value={type}
+          onChange={setType}
+          options={TYPE_FILTERS.map(({ key, label }) => {
             const Icon = key !== 'all' ? AD_SLOT_TYPE_META[key]?.icon : null;
-            return (
-              <button
-                key={key}
-                role="tab"
-                aria-selected={active}
-                onClick={() => setType(key)}
-                className={chipClass(active)}
-              >
-                {Icon && <Icon size={14} stroke={1.8} aria-hidden />}
-                {label}
-                <span className={`font-numeric ${active ? 'text-white/60' : 'text-(--color-subtle)'}`}>
-                  {typeCounts[key]}
-                </span>
-              </button>
-            );
+            return {
+              key,
+              label,
+              count: typeCounts[key],
+              icon: Icon ? <Icon size={14} stroke={1.8} aria-hidden /> : undefined,
+            };
           })}
-        </div>
+        />
       </div>
 
       {shown.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-(--color-border-strong) bg-(--color-surface) px-6 py-12 text-center text-sm text-(--color-muted)">
-          No {emptyLabel}.
-        </p>
-      ) : view === 'card' ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((slot) => (
-            <AdSlotCard key={slot.id} adSlot={slot} />
-          ))}
-        </div>
+        <EmptyState
+          title="No matching ad slots"
+          description="Try a different availability or type filter to see more of your inventory."
+        />
       ) : (
-        <ul className="divide-y divide-(--color-border) overflow-hidden rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm)">
-          {shown.map((slot) => (
-            <AdSlotRow key={slot.id} adSlot={slot} />
-          ))}
-        </ul>
+        <>
+          {view === 'card' ? (
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {pageItems.map((slot) => (
+                <AdSlotCard key={slot.id} adSlot={slot} />
+              ))}
+            </div>
+          ) : (
+            <ul className="divide-y divide-(--color-border) rounded-xl border border-(--color-border) bg-(--color-surface) shadow-(--shadow-sm) [&>li:first-child]:rounded-t-xl [&>li:last-child]:rounded-b-xl">
+              {pageItems.map((slot) => (
+                <AdSlotRow key={slot.id} adSlot={slot} />
+              ))}
+            </ul>
+          )}
+          <Pagination page={page} pageSize={pageSize} total={shown.length} onPageChange={setPage} />
+        </>
       )}
     </div>
   );

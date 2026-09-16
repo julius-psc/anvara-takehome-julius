@@ -8,27 +8,31 @@ export function AdSlotCard({ adSlot }: { adSlot: AdSlot }) {
   const TypeIcon = meta?.icon;
 
   return (
-    <div className="flex flex-col rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm)">
-      <div className="flex items-start justify-between gap-3">
-        <h3 className="text-balance font-medium leading-snug text-(--color-foreground)">
-          {adSlot.name}
-        </h3>
-        <div className="flex shrink-0 items-center gap-1.5">
-          <Badge tone={meta?.tone ?? 'neutral'}>
-            {TypeIcon && <TypeIcon size={13} stroke={1.8} />}
-            {meta?.label ?? adSlot.type}
-          </Badge>
-          <AdSlotActions adSlot={adSlot} />
+    <div className="flex h-full flex-col gap-4 rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm)">
+      <div className="flex flex-col gap-2">
+        <div className="flex items-start gap-3">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
+            <h3 className="min-h-7 text-balance font-medium leading-7 text-(--color-foreground)">
+              {adSlot.name}
+            </h3>
+            <Badge tone={meta?.tone ?? 'neutral'}>
+              {TypeIcon && <TypeIcon size={13} stroke={1.8} />}
+              {meta?.label ?? adSlot.type}
+            </Badge>
+          </div>
+          <div className="flex h-7 shrink-0 items-center">
+            <AdSlotActions adSlot={adSlot} />
+          </div>
         </div>
+
+        {adSlot.description ? (
+          <p className="line-clamp-2 text-pretty text-sm text-(--color-muted)">
+            {adSlot.description}
+          </p>
+        ) : null}
       </div>
 
-      {adSlot.description && (
-        <p className="mt-1.5 line-clamp-2 text-pretty text-sm text-(--color-muted)">
-          {adSlot.description}
-        </p>
-      )}
-
-      <div className="mt-4 flex items-end justify-between">
+      <div className="mt-auto flex items-baseline justify-between gap-3">
         <span className="inline-flex items-center gap-1.5 text-sm">
           <span
             className={`h-1.5 w-1.5 rounded-full ${adSlot.isAvailable ? 'bg-(--color-success)' : 'bg-(--color-subtle)'}`}
