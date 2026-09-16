@@ -6,22 +6,30 @@ import { AdSlotActions } from './ad-slot-actions';
 export function AdSlotCard({
   adSlot,
   static: isStatic = false,
+  glass = false,
 }: {
   adSlot: AdSlot;
   /** Hide edit/delete actions — used in decorative previews. */
   static?: boolean;
+  /** Frosted shell for hero overlays — leave false in dashboards. */
+  glass?: boolean;
 }) {
   const meta = AD_SLOT_TYPE_META[adSlot.type];
   const TypeIcon = meta?.icon;
+  // Decorative previews shouldn't inject headings into the document outline.
+  const TitleTag = isStatic ? 'p' : 'h3';
+  const shell = glass
+    ? 'flex h-full flex-col gap-4 rounded-xl border border-(--color-border)/60 bg-(--color-background)/65 p-5 shadow-(--shadow-sm) backdrop-blur-xl backdrop-saturate-150'
+    : 'flex h-full flex-col gap-4 rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm)';
 
   return (
-    <div className="flex h-full flex-col gap-4 rounded-xl border border-(--color-border) bg-(--color-surface) p-5 shadow-(--shadow-sm)">
+    <div className={shell}>
       <div className="flex flex-col gap-2">
         <div className="flex items-start gap-3">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2 gap-y-1">
-            <h3 className="min-h-7 text-balance font-medium leading-7 text-(--color-foreground)">
+            <TitleTag className="min-h-7 text-balance font-medium leading-7 text-(--color-foreground)">
               {adSlot.name}
-            </h3>
+            </TitleTag>
             <Badge tone={meta?.tone ?? 'neutral'}>
               {TypeIcon && <TypeIcon size={13} stroke={1.8} />}
               {meta?.label ?? adSlot.type}

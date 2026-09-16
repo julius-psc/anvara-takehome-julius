@@ -1,0 +1,88 @@
+import type { AdSlot, Campaign } from '@/lib/types';
+
+/** Decorative dashboard previews for the landing hero — mirrors seed-style inventory. */
+export const HERO_CAMPAIGNS: Campaign[] = [
+  {
+    id: 'hero-campaign-1',
+    name: 'Q1 Product Launch',
+    description: 'Launch campaign for our new developer tooling suite across tech publishers.',
+    budget: 10000,
+    spent: 2500,
+    status: 'ACTIVE',
+    startDate: '2026-01-01',
+    endDate: '2026-03-31',
+    sponsorId: 'hero-sponsor',
+  },
+  {
+    id: 'hero-campaign-2',
+    name: 'Brand Awareness',
+    description: 'General brand awareness across newsletters and podcasts.',
+    budget: 5000,
+    spent: 0,
+    status: 'DRAFT',
+    startDate: '2026-02-01',
+    endDate: '2026-04-30',
+    sponsorId: 'hero-sponsor',
+  },
+  {
+    id: 'hero-campaign-3',
+    name: 'Summer Developer Push',
+    description: 'Mid-year push into podcast mid-rolls and newsletter features.',
+    budget: 15000,
+    spent: 8200,
+    status: 'ACTIVE',
+    startDate: '2026-05-01',
+    endDate: '2026-08-31',
+    sponsorId: 'hero-sponsor',
+  },
+  {
+    id: 'hero-campaign-4',
+    name: 'Holiday Retarget',
+    description: 'Paused while creative refresh finishes — budget held.',
+    budget: 7500,
+    spent: 3100,
+    status: 'PAUSED',
+    startDate: '2025-11-01',
+    endDate: '2025-12-31',
+    sponsorId: 'hero-sponsor',
+  },
+];
+
+export const HERO_AD_SLOTS: AdSlot[] = [
+  {
+    id: 'hero-slot-1',
+    name: 'Header Banner',
+    description: 'Premium top-of-page banner with maximum visibility across all pages.',
+    type: 'DISPLAY',
+    basePrice: 500,
+    isAvailable: true,
+    publisherId: 'hero-publisher',
+  },
+  {
+    id: 'hero-slot-2',
+    name: 'Mid-roll Spot (90s)',
+    description: 'Host-read mid-roll placement with the highest engagement rates.',
+    type: 'PODCAST',
+    basePrice: 1500,
+    isAvailable: true,
+    publisherId: 'hero-publisher',
+  },
+  {
+    id: 'hero-slot-3',
+    name: 'Featured Sponsor Slot',
+    description: 'Top newsletter placement with logo, headline, and short description.',
+    type: 'NEWSLETTER',
+    basePrice: 800,
+    isAvailable: false,
+    publisherId: 'hero-publisher',
+  },
+  {
+    id: 'hero-slot-4',
+    name: 'Homepage Takeover',
+    description: 'Full homepage takeover for 24 hours — maximum brand exposure.',
+    type: 'DISPLAY',
+    basePrice: 3000,
+    isAvailable: true,
+    publisherId: 'hero-publisher',
+  },
+];
