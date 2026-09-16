@@ -34,6 +34,9 @@ export const baseConfig = [
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'error',
       'no-console': 'warn',
+      // TypeScript already reports undefined identifiers; the core no-undef rule
+      // only misfires on globals/types (process, RequestInit, React, etc.).
+      'no-undef': 'off',
     },
   },
   prettierConfig,
@@ -66,6 +69,9 @@ export const reactConfig = [
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       '@typescript-eslint/no-explicit-any': 'error',
       'no-console': 'warn',
+      // TypeScript already reports undefined identifiers; the core no-undef rule
+      // only misfires on globals/types (process, RequestInit, React, etc.).
+      'no-undef': 'off',
     },
   },
   {
@@ -76,7 +82,10 @@ export const reactConfig = [
     },
     settings: {
       react: {
-        version: 'detect',
+        // Pinned instead of 'detect': eslint-plugin-react's auto-detection calls
+        // context.getFilename(), which ESLint 10 removed. An explicit version
+        // skips that broken code path.
+        version: '19.0',
       },
     },
     rules: {
