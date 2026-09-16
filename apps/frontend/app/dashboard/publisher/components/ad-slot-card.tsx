@@ -1,14 +1,9 @@
-'use client';
+import type { AdSlot } from '@/lib/types';
+import { AdSlotFormModal } from './ad-slot-form-modal';
+import { DeleteAdSlotButton } from './delete-ad-slot-button';
 
 interface AdSlotCardProps {
-  adSlot: {
-    id: string;
-    name: string;
-    description?: string;
-    type: string;
-    basePrice: number;
-    isAvailable: boolean;
-  };
+  adSlot: AdSlot;
 }
 
 const typeColors: Record<string, string> = {
@@ -43,7 +38,14 @@ export function AdSlotCard({ adSlot }: AdSlotCardProps) {
         </span>
       </div>
 
-      {/* TODO: Add edit/toggle availability buttons */}
+      <div className="mt-3 flex items-center justify-between border-t border-[--color-border] pt-2">
+        <AdSlotFormModal
+          adSlot={adSlot}
+          triggerLabel="Edit"
+          triggerClassName="rounded px-3 py-1.5 text-sm text-[--color-primary] hover:bg-gray-50"
+        />
+        <DeleteAdSlotButton id={adSlot.id} />
+      </div>
     </div>
   );
 }
