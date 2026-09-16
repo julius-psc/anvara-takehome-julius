@@ -1,10 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+
+const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
 // Default trigger styling: the compact kebab (⋯) icon button.
 const KEBAB_TRIGGER =
-  'grid h-7 w-7 place-items-center rounded-md text-(--color-muted) transition-colors hover:bg-(--color-surface-hover) hover:text-(--color-foreground)';
+  'pressable grid h-7 w-7 place-items-center rounded-md text-(--color-muted) transition-colors hover:bg-(--color-surface-hover) hover:text-(--color-foreground)';
 
 interface MenuProps {
   /** Accessible label for the trigger button, e.g. "Ad slot actions". */
@@ -27,6 +30,7 @@ export function Menu({ label, children, trigger, triggerClassName, align = 'righ
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const reduceMotion = useReducedMotion();
 
   const close = () => setOpen(false);
 
@@ -74,6 +78,10 @@ export function Menu({ label, children, trigger, triggerClassName, align = 'righ
     };
   }, [open]);
 
+  const transition = reduceMotion
+    ? { duration: 0.12, ease: EASE_OUT }
+    : { duration: 0.18, ease: EASE_OUT };
+
   return (
     <div ref={rootRef} className="relative">
       <button
@@ -94,19 +102,38 @@ export function Menu({ label, children, trigger, triggerClassName, align = 'righ
         )}
       </button>
 
-      {open && (
-        <div
-          role="menu"
-          aria-label={label}
-          // Anchored below the trigger; aligns to the requested edge so it grows
-          // inward and never clips (right for corner kebabs, left for toolbars).
-          className={`absolute top-full z-20 mt-1 min-w-40 animate-fade-in rounded-lg border border-(--color-border) bg-(--color-surface) p-1 shadow-(--shadow-md) ${
-            align === 'left' ? 'left-0' : 'right-0'
-          }`}
-        >
-          {children(close)}
-        </div>
-      )}
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            key="menu"
+            role="menu"
+            aria-label={label}
+            // Anchored below the trigger; aligns to the requested edge so it grows
+            // inward and never clips (right for corner kebabs, left for toolbars).
+            className={`absolute top-full z-20 mt-1 min-w-40 rounded-lg border border-(--color-border) bg-(--color-surface) p-1 shadow-(--shadow-md) ${
+              align === 'left' ? 'left-0 origin-top-left' : 'right-0 origin-top-right'
+            }`}
+            initial={
+              reduceMotion
+                ? { opacity: 0 }
+                : { opacity: 0, transform: 'scale(0.96)' }
+            }
+            animate={
+              reduceMotion
+                ? { opacity: 1 }
+                : { opacity: 1, transform: 'scale(1)' }
+            }
+            exit={
+              reduceMotion
+                ? { opacity: 0 }
+                : { opacity: 0, transform: 'scale(0.96)' }
+            }
+            transition={transition}
+          >
+            {children(close)}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }
@@ -124,7 +151,7 @@ export function MenuItem({ onSelect, children, danger }: MenuItemProps) {
       type="button"
       role="menuitem"
       onClick={onSelect}
-      className={`flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-left text-sm transition-colors ${
+      className={`pressable flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-left text-sm transition-colors ${
         danger
           ? 'text-(--color-error) hover:bg-(--color-error-soft)'
           : 'text-(--color-foreground) hover:bg-(--color-surface-hover)'

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { LayoutGroup, motion, useReducedMotion } from 'motion/react';
 
 export type FilterTabOption<T extends string> = {
@@ -60,12 +60,24 @@ export function FilterTabs<T extends string>({
   className = '',
 }: FilterTabsProps<T>) {
   const [hovered, setHovered] = useState<T | null>(null);
+  const [fineHover, setFineHover] = useState(false);
   const reduceMotion = useReducedMotion();
   const highlight = hovered ?? value;
   const pillTransition = reduceMotion
     ? { duration: 0 }
     : { type: 'tween' as const, duration: 0.2, ease: EASE_IN_OUT };
-  const weightTransition = reduceMotion ? { duration: 0 } : { duration: 0.14, ease: EASE_OUT };
+  // Reduced motion: keep a short weight cue; only the pill morph is zeroed.
+  const weightTransition = reduceMotion
+    ? { duration: 0.1, ease: EASE_OUT }
+    : { duration: 0.14, ease: EASE_OUT };
+
+  useEffect(() => {
+    const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
+    const sync = () => setFineHover(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
 
   const clearHover = () => setHovered(null);
 
@@ -93,7 +105,9 @@ export function FilterTabs<T extends string>({
               role="tab"
               aria-selected={selected}
               onClick={() => onChange(key)}
-              onMouseEnter={() => setHovered(key)}
+              onMouseEnter={() => {
+                if (fineHover) setHovered(key);
+              }}
               onFocus={() => setHovered(key)}
               className="relative inline-flex items-center rounded-sm px-3 py-1.5 text-sm outline-none focus-visible:ring-2 focus-visible:ring-(--color-accent) focus-visible:ring-offset-1"
             >

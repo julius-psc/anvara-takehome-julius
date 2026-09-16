@@ -5,7 +5,7 @@ import type { ViewMode } from '@/lib/use-view-preference';
 
 // Segmented card/list switch. Concentric radius (Tailwind v4):
 // rounded-lg (8px) track − p-1 (4px) padding → rounded-sm (4px) buttons.
-// Selected state is a static cue (surface + shadow); scale(0.96) on press;
+// Selected state is a static cue (surface + shadow); .pressable scale(0.97) on press;
 // only the changed properties transition.
 export function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode) => void }) {
   const options: { key: ViewMode; label: string; Icon: typeof IconLayoutGrid }[] = [
@@ -28,7 +28,7 @@ export function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: V
             aria-label={label}
             aria-pressed={active}
             onClick={() => onChange(key)}
-            className={`grid h-7 w-7 place-items-center rounded-sm transition-[color,background-color,box-shadow,transform] duration-150 ease-out active:scale-[0.96] ${
+            className={`pressable grid h-7 w-7 place-items-center rounded-sm transition-[color,background-color,box-shadow,transform] duration-150 ease-out ${
               active
                 ? 'bg-(--color-surface-hover) text-(--color-foreground) shadow-(--shadow-sm)'
                 : 'text-(--color-muted) hover:text-(--color-foreground)'
