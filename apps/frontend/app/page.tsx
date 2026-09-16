@@ -1,7 +1,5 @@
 import type { Metadata } from 'next';
-import { LandingFeatures } from './components/landing/features';
-import { LandingHero } from './components/landing/hero';
-import { LandingHowItWorks } from './components/landing/how-it-works';
+import { Landing } from './components/landing/landing';
 
 export const metadata: Metadata = {
   title: {
@@ -28,11 +26,5 @@ export const metadata: Metadata = {
 };
 
 export default function Home() {
-  return (
-    <>
-      <LandingHero />
-      <LandingFeatures />
-      <LandingHowItWorks />
-    </>
-  );
+  return <Landing />;
 }

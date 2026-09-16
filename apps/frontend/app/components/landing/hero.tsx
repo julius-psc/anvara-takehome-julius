@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { useState } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
 import heroImg from '@/app/assets/hero-img.jpg';
 import heroImgPublisher from '@/app/assets/hero-img-2.jpg';
 import type { Audience } from './content';
@@ -9,15 +9,29 @@ import { AUDIENCE_COPY, AUDIENCE_OPTIONS } from './content';
 import { AudienceToggle } from './audience-toggle';
 import { HeroCardStack } from './hero-card-stack';
 import { HeroCopy } from './hero-copy';
+import { LogoMarquee } from './logo-marquee';
+
+const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 
 const HERO_BG: Record<Audience, typeof heroImg> = {
   sponsor: heroImg,
   publisher: heroImgPublisher,
 };
 
+type LandingHeroProps = {
+  audience: Audience;
+  onAudienceChange: (audience: Audience) => void;
+};
+
 /** Full-viewport split hero — copy left, image + dashboard card stack right. */
-export function LandingHero() {
-  const [audience, setAudience] = useState<Audience>('sponsor');
+export function LandingHero({ audience, onAudienceChange }: LandingHeroProps) {
+  const reduceMotion = useReducedMotion();
+  const copyTransition = reduceMotion
+    ? { duration: 0.01, ease: EASE_OUT }
+    : { duration: 0.2, ease: EASE_OUT };
+  const mediaTransition = reduceMotion
+    ? { duration: 0.01, ease: EASE_OUT }
+    : { duration: 0.25, ease: EASE_OUT };
 
   return (
     <section
@@ -26,16 +40,27 @@ export function LandingHero() {
     >
       <div className="flex min-h-0 flex-col justify-center px-4 py-10 pt-24 sm:px-6 lg:px-12 lg:pt-10 xl:px-16">
         <div className="w-full max-w-lg">
-          <AudienceToggle value={audience} onChange={setAudience} />
+          <AudienceToggle value={audience} onChange={onAudienceChange} />
           {/* Stack both audiences in one cell so height stays fixed when toggling. */}
           <div className="mt-5 grid">
             {AUDIENCE_OPTIONS.map(({ key }) => {
               const copy = AUDIENCE_COPY[key];
               const active = key === audience;
               return (
-                <div
+                <motion.div
                   key={key}
-                  className={`col-start-1 row-start-1 ${active ? 'visible' : 'invisible pointer-events-none'}`}
+                  className="col-start-1 row-start-1"
+                  initial={false}
+                  animate={
+                    reduceMotion
+                      ? { opacity: active ? 1 : 0 }
+                      : {
+                          opacity: active ? 1 : 0,
+                          transform: active ? 'translateY(0px)' : 'translateY(6px)',
+                        }
+                  }
+                  transition={copyTransition}
+                  style={{ pointerEvents: active ? 'auto' : 'none' }}
                   aria-hidden={!active}
                   inert={!active ? true : undefined}
                 >
@@ -46,29 +71,65 @@ export function LandingHero() {
                     asHeading={active}
                     className="mt-2"
                   />
-                </div>
+                </motion.div>
               );
             })}
           </div>
+          <LogoMarquee />
         </div>
       </div>
 
       <div className="relative min-h-[52svh] lg:min-h-0">
-        <Image
-          key={audience}
-          src={HERO_BG[audience]}
-          alt="Abstract brand photography for the Anvara sponsorship marketplace"
-          fill
-          priority
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          className="object-cover"
-        />
+        {AUDIENCE_OPTIONS.map(({ key }) => {
+          const active = key === audience;
+          return (
+            <motion.div
+              key={key}
+              className="absolute inset-0"
+              initial={false}
+              animate={{ opacity: active ? 1 : 0 }}
+              transition={mediaTransition}
+              style={{ pointerEvents: active ? 'auto' : 'none' }}
+              aria-hidden={!active}
+            >
+              <Image
+                src={HERO_BG[key]}
+                alt="Abstract brand photography for the Anvara sponsorship marketplace"
+                fill
+                priority={key === 'sponsor'}
+                sizes="(max-width: 1024px) 100vw, 50vw"
+                className="object-cover"
+              />
+            </motion.div>
+          );
+        })}
         <div
           className="absolute inset-0 bg-linear-to-t from-black/55 via-black/25 to-black/10"
           aria-hidden
         />
-        <div className="absolute inset-0 flex items-center justify-center px-4 py-10 sm:px-8">
-          <HeroCardStack key={audience} audience={audience} />
+        {/*
+          Stacks swap with visibility only — never animate opacity on an ancestor of
+          backdrop-blur cards (parent opacity < 1 isolates the layer and the frost
+          samples an empty backdrop, so cards look fully transparent mid-fade).
+        */}
+        <div className="absolute inset-0">
+          {AUDIENCE_OPTIONS.map(({ key }) => {
+            const active = key === audience;
+            return (
+              <div
+                key={key}
+                className="absolute inset-0 flex items-center justify-center px-4 py-10 sm:px-8"
+                style={{
+                  visibility: active ? 'visible' : 'hidden',
+                  pointerEvents: active ? 'auto' : 'none',
+                }}
+                aria-hidden={!active}
+                inert={!active ? true : undefined}
+              >
+                <HeroCardStack audience={key} autoPlay={active} />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>
