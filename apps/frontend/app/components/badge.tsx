@@ -2,14 +2,13 @@ import type { ReactNode } from 'react';
 
 export type BadgeTone = 'neutral' | 'success' | 'warning' | 'info' | 'danger';
 
-// Semantic status colors use Tailwind's fixed palette (reliable across the
-// design system without needing per-tone CSS variables).
+// Badge tones map to design-token soft fills so light/dark both stay in sync.
 const toneStyles: Record<BadgeTone, string> = {
-  neutral: 'bg-neutral-100 text-neutral-600 ring-neutral-200',
-  success: 'bg-green-50 text-green-700 ring-green-200',
-  warning: 'bg-amber-50 text-amber-700 ring-amber-200',
-  info: 'bg-blue-50 text-blue-700 ring-blue-200',
-  danger: 'bg-red-50 text-red-600 ring-red-200',
+  neutral: 'bg-(--color-surface-hover) text-(--color-muted) ring-(--color-border)',
+  success: 'bg-(--color-success-soft) text-(--color-success) ring-(--color-success)/25',
+  warning: 'bg-(--color-warning-soft) text-(--color-warning) ring-(--color-warning)/25',
+  info: 'bg-(--color-info-soft) text-(--color-info) ring-(--color-info)/25',
+  danger: 'bg-(--color-error-soft) text-(--color-error) ring-(--color-error)/25',
 };
 
 export function Badge({ tone = 'neutral', children }: { tone?: BadgeTone; children: ReactNode }) {

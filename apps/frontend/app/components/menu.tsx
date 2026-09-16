@@ -126,7 +126,7 @@ export function MenuItem({ onSelect, children, danger }: MenuItemProps) {
       onClick={onSelect}
       className={`flex w-full items-center gap-2 rounded-md px-3 py-1.5 text-left text-sm transition-colors ${
         danger
-          ? 'text-red-600 hover:bg-red-50'
+          ? 'text-(--color-error) hover:bg-(--color-error-soft)'
           : 'text-(--color-foreground) hover:bg-(--color-surface-hover)'
       }`}
     >

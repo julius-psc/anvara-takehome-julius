@@ -2,10 +2,13 @@
 
 /*
  * Anvara design tokens — a clean, minimal (Vercel/Linear-inspired) system:
- * warm-neutral scale, near-black primary actions, one restrained blue accent.
+ * warm-neutral scale, brand-blue primary, one restrained accent.
  * Components reference these via Tailwind v4's CSS-var shorthand, e.g. bg-(--color-surface).
+ * Dark mode follows OS preference via prefers-color-scheme (no class toggle).
  */
 :root {
+  color-scheme: light;
+
   /* Neutral scale (warm-tinted) */
   --color-background: #fbfbfa; /* app background (off-white) */
   --color-surface: #ffffff; /* cards / panels */
@@ -20,6 +23,7 @@
   --color-primary: #2346f9;
   --color-primary-hover: #1e3fd8;
   --color-primary-light: #3556ff;
+  --color-on-primary: #ffffff; /* text/icons on primary fills */
   --gradient-primary: linear-gradient(180deg, #3556ff 0%, #2346f9 100%);
 
   /* Accent = brand blue for links / focus / active / progress */
@@ -36,7 +40,11 @@
   --color-warning: #b45309;
   --color-warning-soft: #fff7ed;
   --color-error: #dc2626;
+  --color-error-hover: #b91c1c;
   --color-error-soft: #fef2f2;
+  --color-info: #1d4ed8;
+  --color-info-soft: #eff6ff;
+  --color-overlay: rgb(0 0 0 / 0.4);
 
   /* Typography (Geist, wired up in layout.tsx) */
   --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
@@ -47,6 +55,50 @@
   --shadow-md: 0 2px 8px -2px rgb(0 0 0 / 0.06), 0 4px 16px -4px rgb(0 0 0 / 0.05);
 
   --spacing-container: 1rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    /* Warm near-black surfaces — slightly lifted panels, soft borders */
+    --color-background: #0c0c0c;
+    --color-surface: #141414;
+    --color-surface-hover: #1c1c1c;
+    --color-foreground: #ededed;
+    --color-muted: #a3a3a3;
+    --color-subtle: #737373;
+    --color-border: #262626;
+    --color-border-strong: #3a3a3a;
+
+    /* Brand blue stays vivid; soft wash is darkened, not inverted */
+    --color-primary: #4d6bff;
+    --color-primary-hover: #3d5bf5;
+    --color-primary-light: #6b84ff;
+    --color-on-primary: #ffffff;
+    --gradient-primary: linear-gradient(180deg, #6b84ff 0%, #4d6bff 100%);
+
+    --color-accent: #4d6bff;
+    --color-accent-hover: #6b84ff;
+    --color-accent-soft: #162056;
+
+    --color-secondary: #22c55e;
+    --color-secondary-hover: #16a34a;
+
+    --color-success: #22c55e;
+    --color-success-soft: #052e16;
+    --color-warning: #fbbf24;
+    --color-warning-soft: #422006;
+    --color-error: #f87171;
+    --color-error-hover: #ef4444;
+    --color-error-soft: #450a0a;
+    --color-info: #93c5fd;
+    --color-info-soft: #172554;
+    --color-overlay: rgb(0 0 0 / 0.6);
+
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 16px -4px rgb(0 0 0 / 0.55), 0 2px 8px -2px rgb(0 0 0 / 0.4);
+  }
 }
 
 @layer base {
@@ -65,7 +117,7 @@
 
   ::selection {
     background-color: var(--color-accent);
-    color: #ffffff;
+    color: var(--color-on-primary);
   }
 
   /* Tailwind v4's Preflight no longer sets cursor:pointer on buttons; restore it
@@ -90,10 +142,17 @@
   .btn-primary {
     background-image: var(--gradient-primary);
     box-shadow: inset 0 0 24px 0 rgb(255 255 255 / 0.2);
-    color: #ffffff;
+    color: var(--color-on-primary);
     transition:
       filter 150ms ease,
       transform 100ms ease;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .btn-primary {
+      /* Soft inset glow reads cleaner than a hard white specular on dark UI */
+      box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.12);
+    }
   }
   .btn-primary:hover {
     filter: brightness(1.06);
@@ -154,4 +213,13 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* Sonner: hug content width; OS dark mode is handled via theme="system". */
+[data-sonner-toaster] {
+  --width: fit-content;
+}
+[data-sonner-toast] {
+  width: fit-content !important;
+  max-width: min(22rem, calc(100vw - 2rem)) !important;
 }

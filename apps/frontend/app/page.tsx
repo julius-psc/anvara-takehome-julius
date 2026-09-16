@@ -14,21 +14,21 @@ export default function Home() {
       <div className="flex gap-4">
         <a
           href="/login"
-          className="rounded-lg bg-(--color-primary) px-6 py-3 text-white hover:bg-(--color-primary-hover)"
+          className="btn-primary rounded-lg px-6 py-3 font-semibold"
         >
           Get Started
         </a>
       </div>
 
       <div className="mt-16 grid gap-8 text-left sm:grid-cols-2">
-        <div className="rounded-lg border border-(--color-border) p-6">
+        <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-sm)">
           <h2 className="mb-2 text-lg font-semibold text-(--color-primary)">For Sponsors</h2>
           <p className="text-sm text-(--color-muted)">
             Create campaigns, set budgets, and reach your target audience through premium
             publishers.
           </p>
         </div>
-        <div className="rounded-lg border border-(--color-border) p-6">
+        <div className="rounded-lg border border-(--color-border) bg-(--color-surface) p-6 shadow-(--shadow-sm)">
           <h2 className="mb-2 text-lg font-semibold text-(--color-secondary)">For Publishers</h2>
           <p className="text-sm text-(--color-muted)">
             List your ad slots, set your rates, and connect with sponsors looking for your audience.
