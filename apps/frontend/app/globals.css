@@ -46,6 +46,10 @@
   --color-info-soft: #eff6ff;
   --color-overlay: rgb(0 0 0 / 0.4);
 
+  /* Tooltip — stays dark in both themes for contrast against surfaces */
+  --color-tooltip: #1a1a1a;
+  --color-tooltip-fg: #ffffff;
+
   /* Typography (Geist, wired up in layout.tsx) */
   --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, 'SF Mono', monospace;
@@ -53,6 +57,15 @@
   /* Elevation */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.04);
   --shadow-md: 0 2px 8px -2px rgb(0 0 0 / 0.06), 0 4px 16px -4px rgb(0 0 0 / 0.05);
+
+  /* Motion — Emil Kowalski strong curves; UI ≤300ms */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+  --duration-press: 120ms;
+  --duration-fast: 150ms;
+  --duration-ui: 200ms;
+  --duration-panel: 250ms;
 
   --spacing-container: 1rem;
 }
@@ -96,6 +109,10 @@
     --color-info-soft: #172554;
     --color-overlay: rgb(0 0 0 / 0.6);
 
+    /* Slightly lifted dark chip so tooltips stay dark, not inverted white */
+    --color-tooltip: #2a2a2a;
+    --color-tooltip-fg: #ededed;
+
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.4);
     --shadow-md: 0 4px 16px -4px rgb(0 0 0 / 0.55), 0 2px 8px -2px rgb(0 0 0 / 0.4);
   }
@@ -104,6 +121,11 @@
 @layer base {
   * {
     border-color: var(--color-border);
+  }
+
+  html {
+    /* Keep layout stable when modals lock body scroll (no sideways jump). */
+    scrollbar-gutter: stable;
   }
 
   body {
@@ -144,8 +166,8 @@
     box-shadow: inset 0 0 24px 0 rgb(255 255 255 / 0.2);
     color: var(--color-on-primary);
     transition:
-      filter 150ms ease,
-      transform 100ms ease;
+      filter var(--duration-fast) var(--ease-out),
+      transform var(--duration-press) var(--ease-out);
   }
 
   @media (prefers-color-scheme: dark) {
@@ -158,13 +180,29 @@
     filter: brightness(1.06);
   }
   .btn-primary:active {
-    transform: translateY(0.5px);
+    transform: scale(0.97);
     filter: brightness(0.98);
   }
   .btn-primary:disabled {
     opacity: 0.55;
     filter: none;
+    transform: none;
     cursor: not-allowed;
+  }
+
+  .progress-fill {
+    transform-origin: left;
+    transition: transform 300ms var(--ease-out);
+  }
+
+  /* Landing — How it works: auto-cycled spotlight via opacity (no scale) */
+  .how-steps__card {
+    opacity: 0.4;
+    transition: opacity var(--duration-panel) var(--ease-out);
+  }
+
+  .how-steps__card--active {
+    opacity: 1;
   }
 }
 
@@ -176,50 +214,52 @@
     letter-spacing: -0.01em;
   }
 
-  .animate-fade-in {
-    animation: fadeIn 150ms ease-out;
+  .pressable {
+    transition: transform var(--duration-press) var(--ease-out);
   }
-  .animate-modal-in {
-    animation: modalIn 160ms cubic-bezier(0.16, 1, 0.3, 1);
+  .pressable:active {
+    transform: scale(0.97);
   }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
+  .pressable:disabled:active {
+    transform: none;
   }
 }
 
-@keyframes modalIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-/* Respect users who prefer reduced motion. */
+/* Reduced motion: keep color/opacity feedback; drop movement. */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
   ::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .btn-primary:active,
+  .pressable:active {
+    transform: none;
+  }
+
+  .progress-fill {
+    transition: none;
   }
 }
 
-/* Sonner: hug content width; OS dark mode is handled via theme="system". */
+/* Sonner: hug toast width to content.
+   Default Sonner uses a fixed --width (356px). fit-content alone collapses
+   because [data-content] has flex:1;min-width:0 and the toast uses
+   overflow-wrap:anywhere (min-content becomes 1ch). Override those. */
 [data-sonner-toaster] {
   --width: fit-content;
+  width: fit-content;
+  max-width: min(22rem, calc(100vw - 2rem));
 }
+
 [data-sonner-toast] {
   width: fit-content !important;
   max-width: min(22rem, calc(100vw - 2rem)) !important;
+  overflow-wrap: break-word;
+}
+
+[data-sonner-toast][data-styled='true'] [data-content] {
+  flex: 0 1 auto !important;
+  min-width: auto !important;
 }
