@@ -1,8 +1,10 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import anvaraLogo from '@/app/assets/icons/anvara-logo.svg';
 import { authClient } from '@/auth-client';
 
 type UserRole = 'sponsor' | 'publisher' | null;
@@ -39,75 +41,88 @@ export function Nav() {
     ...(role === 'publisher' ? [{ href: '/dashboard/publisher', label: 'My Ad Slots' }] : []),
   ];
 
-  // Home hero is full-bleed; match its left inset so the logo lines up with the copy.
   const isHome = pathname === '/';
+
+  const linkClass = (href: string) => {
+    const isActive = pathname === href || pathname.startsWith(`${href}/`);
+    return `rounded-lg px-3 py-1.5 text-sm transition-colors ${
+      isActive
+        ? 'bg-(--color-surface-hover) font-medium text-(--color-foreground)'
+        : 'text-(--color-muted) hover:text-(--color-foreground)'
+    }`;
+  };
+
+  const navInner = (
+    <>
+      <div className="flex items-center gap-5">
+        <Link href="/" className="flex shrink-0 items-center rounded-lg px-1 py-0.5" aria-label="Anvara home">
+          <Image
+            src={anvaraLogo}
+            alt=""
+            width={36}
+            height={36}
+            className="size-9"
+            unoptimized
+            priority={isHome}
+          />
+        </Link>
+        <div className="flex items-center gap-1">
+          {links.map((link) => (
+            <Link key={link.href} href={link.href} className={linkClass(link.href)}>
+              {link.label}
+            </Link>
+          ))}
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 pr-1">
+        {isPending ? (
+          <div className="h-5 w-20 animate-pulse rounded-lg bg-(--color-border)" />
+        ) : user ? (
+          <>
+            <span className="hidden text-sm text-(--color-muted) sm:inline">
+              {user.name}
+              {role && <span className="text-(--color-subtle)"> · {role}</span>}
+            </span>
+            <button
+              onClick={async () => {
+                await authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      window.location.href = '/';
+                    },
+                  },
+                });
+              }}
+              className="rounded-lg border border-(--color-border) px-3 py-1.5 text-sm font-medium transition-colors hover:bg-(--color-surface-hover)"
+            >
+              Sign out
+            </button>
+          </>
+        ) : (
+          <Link href="/login" className="btn-primary rounded-lg px-4 py-2 text-sm font-medium">
+            Sign in
+          </Link>
+        )}
+      </div>
+    </>
+  );
+
+  if (isHome) {
+    // Outer rounded-xl (12) = inner rounded-lg (8) + p-1 (4).
+    return (
+      <header className="pointer-events-none fixed inset-x-0 top-0 z-40 p-3 sm:p-4 lg:px-12 lg:pt-5 xl:px-16">
+        <nav className="pointer-events-auto flex w-full items-center justify-between gap-4 rounded-xl border border-(--color-border)/60 bg-(--color-background)/65 p-1 shadow-(--shadow-sm) backdrop-blur-xl backdrop-saturate-150">
+          {navInner}
+        </nav>
+      </header>
+    );
+  }
 
   return (
     <header className="sticky top-0 z-40 border-b border-(--color-border) bg-(--color-background)/80 backdrop-blur-md">
-      <nav
-        className={
-          isHome
-            ? 'flex h-14 w-full items-center justify-between px-4 sm:px-6 lg:px-12 xl:px-16'
-            : 'mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6'
-        }
-      >
-        <div className="flex items-center gap-6">
-          <Link href="/" className="text-[15px] font-semibold tracking-tight">
-            Anvara
-          </Link>
-          <div className="flex items-center gap-1">
-            {links.map((link) => {
-              const isActive = pathname === link.href || pathname.startsWith(`${link.href}/`);
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                    isActive
-                      ? 'bg-(--color-surface-hover) font-medium text-(--color-foreground)'
-                      : 'text-(--color-muted) hover:text-(--color-foreground)'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-3">
-          {isPending ? (
-            <div className="h-5 w-20 animate-pulse rounded bg-(--color-border)" />
-          ) : user ? (
-            <>
-              <span className="hidden text-sm text-(--color-muted) sm:inline">
-                {user.name}
-                {role && <span className="text-(--color-subtle)"> · {role}</span>}
-              </span>
-              <button
-                onClick={async () => {
-                  await authClient.signOut({
-                    fetchOptions: {
-                      onSuccess: () => {
-                        window.location.href = '/';
-                      },
-                    },
-                  });
-                }}
-                className="rounded-md border border-(--color-border) px-3 py-1.5 text-sm font-medium transition-colors hover:bg-(--color-surface-hover)"
-              >
-                Sign out
-              </button>
-            </>
-          ) : (
-            <Link
-              href="/login"
-              className="btn-primary rounded-md px-3.5 py-1.5 text-sm font-medium"
-            >
-              Sign in
-            </Link>
-          )}
-        </div>
+      <nav className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+        {navInner}
       </nav>
     </header>
   );
