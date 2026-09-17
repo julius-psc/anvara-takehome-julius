@@ -18,6 +18,50 @@ This is a take-home assessment. Please:
 Do not open pull requests to the original repo.
 ```
 
+## Candidate Submission — What I Built
+
+> Added by **Julius**. Everything below the [Table of Contents](#table-of-contents) is the original assessment README.
+
+All **5 core challenges** are complete, plus the **entire bonus Design & UX track**, the **hidden challenges**, and two extra backend-hardening items. Commits are small and scoped; the reasoning behind each challenge is written by me in [`ROADMAP.md`](ROADMAP.md).
+
+**Quality gate — all green:** `pnpm typecheck` · `pnpm lint` · `pnpm test` · `pnpm build` · `pnpm format`. No `any` in application code, and the critical Next.js security advisory is patched.
+
+### Core challenges
+
+1. **Fix TypeScript errors** — added the missing `@types/*`, narrowed Express 5 `req.params` (`string | string[]` → a guarded `string`), and replaced every `any` with a precise type (a generic for `debounce`, `unknown` for the logger, a union for `cn`, `Record<string, string>` for the query helpers). Removed all dead code.
+2. **Server-side data fetching** — the sponsor dashboard now fetches on the server and **streams** via `<Suspense>` (auth blocks, the list streams). I extended the same pattern to the **publisher dashboard** and the **marketplace**, each with an `error.tsx` boundary. The data layer forwards the session cookie, so it stayed correct once Challenge 3 locked the API down.
+3. **Secure the API** — a backend Better Auth instance reads the _same_ Postgres session table the frontend writes. `requireAuth` (401) + `requireRole` (403); **ownership is always derived from the session, never the request**, and not-owned resources return 404 so existence is never leaked. Every campaign and ad-slot route is protected, including the `book`/`unbook` gap; CORS is pinned with credentials.
+4. **CRUD operations** — `PUT`/`DELETE` for campaigns and ad-slots: ownership verified first, partial-update validation, ownership kept immutable (a smuggled `sponsorId`/`publisherId` is ignored), and correct `200/204/400/404` codes. Fixed the broken `POST /api/ad-slots` (it wrote fields that don't exist in the schema).
+5. **Dashboards with Server Actions** — `'use server'` actions for create/update/delete that re-validate with Zod, forward the cookie, and call `revalidatePath()`. **One Zod schema validates on both client and server.** _Design decision:_ I used **React Hook Form + `zodResolver`** for client-side form state instead of `useFormState`/`useFormStatus` — they solve the same problem, RHF gives richer field-level UX and a built-in pending state, and `useFormState` is deprecated in React 19. The Server Action remains the real gate.
+
+### Hidden challenges ("maybe there's more than five")
+
+- Implemented the stubbed `GET /api/auth/me`.
+- Fixed the broken `POST /api/ad-slots` (schema mismatch).
+- Closed the unauthenticated `book`/`unbook` booking gap.
+
+### Bonus — Design & UX track (complete)
+
+- **Marketing landing page** — audience-toggled hero with image crossfade, an auto-advancing frosted card stack, features, an animated "how it works" (click-to-replay, per-role product miniatures), logo marquee, and closing CTA — plus full **SEO** (metadata, OG image, sitemap, robots, per-page titles).
+- **Dashboard UI/UX** — stat cards, filter tabs, card/list views, Sonner toasts, confirmation modals, consistent empty states.
+- **Animations & polish** — motion tokens, reusable enter/list primitives, a staggered blur-fade hero reveal, with `prefers-reduced-motion` honored throughout.
+- **Mobile** — hamburger nav with an accessible slide-in drawer, bottom-sheet modals, safe-area insets, 44px touch targets.
+- **Error & empty states** — shared `ErrorState`/`EmptyState`, route error boundaries, a branded 404, and `<Suspense>` skeletons.
+- **Fix ESLint warnings** — repaired the broken lint toolchain and fixed every real warning (0 errors).
+- **Pagination** — a shared control across both dashboards and the marketplace.
+- **Dark mode (extra)** — OS-based semantic color tokens.
+
+### Bonus — Backend hardening (extra)
+
+- **Rate limiting** on all `/api` routes (`express-rate-limit`).
+- **`PUT /api/sponsors/:id`** — completes the sponsor CRUD using the same session-ownership pattern (404 for others, 409 on duplicate email).
+
+### Not attempted
+
+The **Business** (marketplace conversions, newsletter, request-a-quote) and **Analytics** (GA, conversion tracking, A/B testing) bonus tracks — I chose to go deep on the design and engineering tracks instead.
+
+---
+
 ## Table of Contents
 
 - [Anvara Take-Home Test](#anvara-take-home-test)
