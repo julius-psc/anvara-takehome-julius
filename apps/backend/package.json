@@ -16,7 +16,8 @@
     "prisma": "prisma",
     "seed": "tsx --env-file=../../.env prisma/seed.ts",
     "start": "node dist/index.js",
-    "test": "vitest",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "prettier": "@anvara/prettier-config",
