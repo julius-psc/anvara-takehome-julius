@@ -256,7 +256,7 @@ function buildItems(audience: Audience): AccordionItem[] {
       collapsedLabel: c.name,
       collapsedValue: `$${Number(c.spent).toLocaleString('en-US')}`,
       collapsedBadge: (
-        <Badge tone={CAMPAIGN_STATUS_TONE[c.status] ?? 'neutral'}>
+        <Badge variant="solid" tone={CAMPAIGN_STATUS_TONE[c.status] ?? 'neutral'}>
           {formatStatusLabel(c.status)}
         </Badge>
       ),
@@ -271,7 +271,7 @@ function buildItems(audience: Audience): AccordionItem[] {
       collapsedLabel: s.name,
       collapsedValue: `$${Number(s.basePrice).toLocaleString('en-US')}`,
       collapsedBadge: (
-        <Badge tone={meta?.tone ?? 'neutral'}>
+        <Badge variant="solid" tone={meta?.tone ?? 'neutral'}>
           {TypeIcon ? <TypeIcon size={13} stroke={1.8} /> : null}
           {meta?.label ?? s.type}
         </Badge>
@@ -294,7 +294,7 @@ function CampaignExpanded({ campaign }: { campaign: Campaign }) {
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <p className="text-base font-medium text-(--color-foreground)">{campaign.name}</p>
-        <Badge tone={CAMPAIGN_STATUS_TONE[campaign.status] ?? 'neutral'}>
+        <Badge variant="solid" tone={CAMPAIGN_STATUS_TONE[campaign.status] ?? 'neutral'}>
           {formatStatusLabel(campaign.status)}
         </Badge>
       </div>
@@ -334,7 +334,7 @@ function SlotExpanded({ adSlot }: { adSlot: AdSlot }) {
     <div className="flex flex-col gap-3">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <p className="text-base font-medium text-(--color-foreground)">{adSlot.name}</p>
-        <Badge tone={meta?.tone ?? 'neutral'}>
+        <Badge variant="solid" tone={meta?.tone ?? 'neutral'}>
           {TypeIcon ? <TypeIcon size={13} stroke={1.8} /> : null}
           {meta?.label ?? adSlot.type}
         </Badge>
