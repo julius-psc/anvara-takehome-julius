@@ -37,7 +37,7 @@ export function LandingHowItWorks({ audience }: { audience: Audience }) {
         setInView(entry.isIntersecting);
         if (entry.isIntersecting) setActiveIndex(0);
       },
-      { threshold: 0.4 },
+      { threshold: 0.4 }
     );
 
     observer.observe(node);
@@ -90,10 +90,12 @@ export function LandingHowItWorks({ audience }: { audience: Audience }) {
         >
           {copy.title}
         </h2>
-        <p className="mt-3 text-base leading-relaxed text-(--color-muted) text-pretty">{copy.subtext}</p>
+        <p className="mt-3 text-base leading-relaxed text-(--color-muted) text-pretty">
+          {copy.subtext}
+        </p>
       </div>
 
-      <ol className="how-steps mt-10 grid gap-8 sm:grid-cols-3 sm:gap-6 lg:gap-8">
+      <ol className="how-steps mt-10 grid gap-8 min-[850px]:grid-cols-3 min-[850px]:gap-6 lg:gap-8">
         {copy.steps.map((step, index) => {
           // Spotlight one step at a time (opacity). Miniatures only animate when
           // motion is allowed — under reduced motion they stay on the finished frame.
