@@ -354,12 +354,11 @@ export function AdSlotDetail({
               ease: EASE_OUT,
             }}
           >
-            <h2 className="text-base font-semibold tracking-tight text-(--color-foreground)">
-              Request this placement
-            </h2>
-
             {showSponsorForm ? (
               <div className="space-y-3">
+                <h2 className="text-base font-semibold tracking-tight text-(--color-foreground)">
+                  Request this placement
+                </h2>
                 <div>
                   <p className="text-sm font-medium text-(--color-foreground)">Your company</p>
                   <p className="mt-0.5 text-sm leading-5 text-(--color-muted)">
