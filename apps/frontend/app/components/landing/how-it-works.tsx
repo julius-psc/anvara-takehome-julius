@@ -6,17 +6,24 @@ import type { Audience } from './content';
 import { HOW_IT_WORKS } from './content';
 import { HowStepIllustration } from './how-it-works-illustrations';
 
-/** Per-step dwell. Sponsor browse is shorter so the book step follows the click. */
+/**
+ * Per-step dwell. Sponsor browse matches `--duration-how-browse` (2s) so the
+ * book step follows the click; other steps hold past `--duration-how-story`.
+ */
 const STEP_MS: Record<Audience, number[]> = {
   sponsor: [4000, 2000, 4000],
   publisher: [4000, 4000, 4000],
 };
+
+const EMPTY_PLAY_GEN = [0, 0, 0] as const;
 
 export function LandingHowItWorks({ audience }: { audience: Audience }) {
   const reduceMotion = useReducedMotion();
   const sectionRef = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  /** Bumped when a step is user-focused so an already-playing step can remount. */
+  const [playGen, setPlayGen] = useState<number[]>(() => [...EMPTY_PLAY_GEN]);
   const copy = HOW_IT_WORKS[audience];
 
   // Only run the story while the section is on screen. Reset to the first step
@@ -44,12 +51,13 @@ export function LandingHowItWorks({ audience }: { audience: Audience }) {
   if (seenAudience !== audience) {
     setSeenAudience(audience);
     setActiveIndex(0);
+    setPlayGen([...EMPTY_PLAY_GEN]);
   }
 
-  // Advance the spotlight only while visible; parked at step 0 otherwise.
+  // Advance the spotlight while visible (including reduced motion — opacity only).
   // Timeout (not interval) so each step can dwell a different length.
   useEffect(() => {
-    if (reduceMotion || !inView) return;
+    if (!inView) return;
 
     const dwell = STEP_MS[audience][activeIndex] ?? 4000;
     const id = window.setTimeout(() => {
@@ -57,7 +65,16 @@ export function LandingHowItWorks({ audience }: { audience: Audience }) {
     }, dwell);
 
     return () => window.clearTimeout(id);
-  }, [reduceMotion, inView, audience, activeIndex, copy.steps.length]);
+  }, [inView, audience, activeIndex, copy.steps.length]);
+
+  function focusStep(index: number) {
+    setActiveIndex(index);
+    setPlayGen((gens) => {
+      const next = [...gens];
+      next[index] = (next[index] ?? 0) + 1;
+      return next;
+    });
+  }
 
   return (
     <section
@@ -78,21 +95,32 @@ export function LandingHowItWorks({ audience }: { audience: Audience }) {
 
       <ol className="how-steps mt-10 grid gap-8 sm:grid-cols-3 sm:gap-6 lg:gap-8">
         {copy.steps.map((step, index) => {
-          // Reduced motion keeps every card lit; otherwise the in-view section
-          // spotlights one step at a time. Only that step's miniature animates.
-          const isActive = reduceMotion || (inView && index === activeIndex);
-          const playing = !reduceMotion && inView && index === activeIndex;
+          // Spotlight one step at a time (opacity). Miniatures only animate when
+          // motion is allowed — under reduced motion they stay on the finished frame.
+          const isActive = inView && index === activeIndex;
+          const playing = !reduceMotion && isActive;
 
           return (
             <li
               key={step.title}
               className={`how-steps__card min-w-0${isActive ? ' how-steps__card--active' : ''}`}
-              aria-current={isActive && !reduceMotion ? 'step' : undefined}
             >
-              <article className="flex h-full flex-col">
-                <div className="relative flex min-h-64 items-center justify-center sm:min-h-72" aria-hidden>
+              <button
+                type="button"
+                className="how-steps__hit flex h-full w-full flex-col text-left"
+                onClick={() => focusStep(index)}
+                aria-current={isActive ? 'step' : undefined}
+              >
+                <div
+                  className="relative flex min-h-64 items-center justify-center sm:min-h-72"
+                  aria-hidden
+                >
                   <HowStepIllustration
-                    key={`${audience}-${index}`}
+                    key={
+                      playing
+                        ? `${audience}-${index}-play-${playGen[index] ?? 0}`
+                        : `${audience}-${index}-rest`
+                    }
                     audience={audience}
                     step={index}
                     playing={playing}
@@ -107,7 +135,7 @@ export function LandingHowItWorks({ audience }: { audience: Audience }) {
                     {step.description}
                   </p>
                 </div>
-              </article>
+              </button>
             </li>
           );
         })}

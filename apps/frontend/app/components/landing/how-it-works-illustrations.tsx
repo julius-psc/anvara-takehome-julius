@@ -166,9 +166,9 @@ function BookIllustration({ playing }: StepIllustrationProps) {
             <span className="how-illu__success-title">Placement booked</span>
             <span className="how-illu__success-copy">Request sent to publisher</span>
           </span>
+          <MiniCursor />
         </div>
       </div>
-      <MiniCursor />
     </div>
   );
 }

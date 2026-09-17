@@ -67,6 +67,9 @@
   --duration-fast: 150ms;
   --duration-ui: 200ms;
   --duration-panel: 250ms;
+  /* Landing How it works — storyboard timelines (marketing; may exceed UI ≤300ms) */
+  --duration-how-story: 3.2s;
+  --duration-how-browse: 2s;
 
   --spacing-container: 1rem;
 }
@@ -204,6 +207,22 @@
 
   .how-steps__card--active {
     opacity: 1;
+  }
+
+  /* Full-card hit target — no extra chrome; resets button UA styles. */
+  .how-steps__hit {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    border-radius: 0.25rem;
+  }
+  .how-steps__hit:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 4px;
   }
 
   /* Product-UI miniatures. Each rests on its finished frame; the active,
@@ -458,23 +477,37 @@
   }
 
   .how-illu--account.how-illu--playing .how-illu__dash {
-    animation: how-role-dash 3.2s var(--ease-out) forwards;
+    animation: how-role-dash var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--role-sponsor.how-illu--playing .how-illu__toggle-opt--sponsor,
   .how-illu--role-publisher.how-illu--playing .how-illu__toggle-opt--publisher {
-    animation: how-opt-press 3.2s var(--ease-out) forwards;
+    animation: how-opt-press var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--role-sponsor.how-illu--playing .how-illu__cursor {
-    animation: how-cursor-sponsor 3.2s var(--ease-out) forwards;
+    animation: how-cursor-sponsor var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--role-publisher.how-illu--playing .how-illu__cursor {
-    animation: how-cursor-publisher 3.2s var(--ease-out) forwards;
+    animation: how-cursor-publisher var(--duration-how-story) var(--ease-out) forwards;
+  }
+  .how-illu--role-sponsor.how-illu--playing .how-illu__toggle-pill {
+    animation: how-pill-to-sponsor var(--duration-how-story) var(--ease-out) forwards;
+  }
+  .how-illu--role-publisher.how-illu--playing .how-illu__toggle-pill {
+    animation: how-pill-to-publisher var(--duration-how-story) var(--ease-out) forwards;
   }
 
   /* ——— Sponsor: browse marketplace ——— */
   .how-illu__card--pick {
     position: relative;
+  }
+  .how-illu__card--pick::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
     box-shadow: 0 0 0 1.5px var(--color-accent);
+    opacity: 1;
+    pointer-events: none;
   }
   .how-illu__card--dim {
     opacity: 0.55;
@@ -487,13 +520,17 @@
     top: calc(100% - 1.45rem);
   }
   .how-illu--browse.how-illu--playing .how-illu__card--pick {
-    animation: how-browse-pick 2s var(--ease-out) forwards;
+    animation: how-browse-pick var(--duration-how-browse) var(--ease-out) forwards;
+  }
+  .how-illu--browse.how-illu--playing .how-illu__card--pick::after {
+    opacity: 0;
+    animation: how-browse-ring var(--duration-how-browse) var(--ease-out) forwards;
   }
   .how-illu--browse.how-illu--playing .how-illu__card--dim {
-    animation: how-browse-dim 2s var(--ease-out) forwards;
+    animation: how-browse-dim var(--duration-how-browse) var(--ease-out) forwards;
   }
   .how-illu--browse.how-illu--playing .how-illu__cursor {
-    animation: how-cursor-browse 2s var(--ease-out) forwards;
+    animation: how-cursor-browse var(--duration-how-browse) var(--ease-out) forwards;
   }
 
   /* ——— Sponsor: book placement ——— */
@@ -529,25 +566,25 @@
     opacity: 0;
   }
   .how-illu--book .how-illu__cursor {
-    left: 58%;
-    top: 7.4rem;
+    left: 50%;
+    top: 50%;
   }
   .how-illu--book.how-illu--playing .how-illu__avail--free,
   .how-illu--inbound.how-illu--playing .how-illu__avail--free {
-    animation: how-status-free 3.2s var(--ease-out) forwards;
+    animation: how-status-free var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--book.how-illu--playing .how-illu__avail--booked,
   .how-illu--inbound.how-illu--playing .how-illu__avail--booked {
-    animation: how-status-booked 3.2s var(--ease-out) forwards;
+    animation: how-status-booked var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--book.how-illu--playing .how-illu__btn {
-    animation: how-book-btn 3.2s var(--ease-out) forwards;
+    animation: how-book-btn var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--book.how-illu--playing .how-illu__success {
-    animation: how-book-success 3.2s var(--ease-out) forwards;
+    animation: how-book-success var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--book.how-illu--playing .how-illu__cursor {
-    animation: how-cursor-book 3.2s var(--ease-out) forwards;
+    animation: how-cursor-book var(--duration-how-story) var(--ease-out) forwards;
   }
 
   /* ——— Publisher: list a slot ——— */
@@ -640,26 +677,26 @@
     width: 100%;
   }
   .how-illu--list.how-illu--playing .how-illu__form {
-    animation: how-list-form 3.2s var(--ease-out) forwards;
+    animation: how-list-form var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--list.how-illu--playing .how-illu__card--listed {
-    animation: how-list-card 3.2s var(--ease-out) forwards;
+    animation: how-list-card var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--list.how-illu--playing .how-illu__typed {
     clip-path: inset(0 100% 0 0);
     animation: how-type 1.05s linear 0.28s forwards;
   }
   .how-illu--list.how-illu--playing .how-illu__caret {
-    animation: how-caret 3.2s linear forwards;
+    animation: how-caret var(--duration-how-story) linear forwards;
   }
   .how-illu--list.how-illu--playing .how-illu__type--selected {
-    animation: how-type-select 3.2s var(--ease-out) forwards;
+    animation: how-type-select var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--list.how-illu--playing .how-illu__input--price {
-    animation: how-price-in 3.2s var(--ease-out) forwards;
+    animation: how-price-in var(--duration-how-story) var(--ease-out) forwards;
   }
   .how-illu--list.how-illu--playing .how-illu__btn {
-    animation: how-list-btn 3.2s var(--ease-out) forwards;
+    animation: how-list-btn var(--duration-how-story) var(--ease-out) forwards;
   }
 
   /* ——— Publisher: inbound request ——— */
@@ -680,7 +717,7 @@
     flex-direction: column;
   }
   .how-illu--inbound.how-illu--playing .how-illu__request {
-    animation: how-inbound-request 3.2s var(--ease-out) forwards;
+    animation: how-inbound-request var(--duration-how-story) var(--ease-out) forwards;
   }
 }
 
@@ -708,15 +745,27 @@
   42% { transform: scale(0.96); }
   50%, 100% { transform: scale(1); }
 }
+@keyframes how-pill-to-sponsor {
+  0%, 28% { transform: translateX(calc(100% + 0.2rem)); }
+  48%, 100% { transform: translateX(0); }
+}
+@keyframes how-pill-to-publisher {
+  0%, 28% { transform: translateX(0); }
+  48%, 100% { transform: translateX(calc(100% + 0.2rem)); }
+}
 @keyframes how-role-dash {
   0%, 44% { opacity: 0; transform: translateY(0.45rem) scale(0.97); }
   64%, 100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes how-browse-pick {
-  0% { opacity: 0; transform: translateY(0.45rem) scale(0.97); box-shadow: 0 0 0 1.5px transparent; }
-  20%, 46% { opacity: 1; transform: translateY(0) scale(1); box-shadow: 0 0 0 1.5px transparent; }
-  54% { transform: scale(0.98); box-shadow: 0 0 0 1.5px var(--color-accent); }
-  64%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 1.5px var(--color-accent); }
+  0% { opacity: 0; transform: translateY(0.45rem) scale(0.97); }
+  20%, 46% { opacity: 1; transform: translateY(0) scale(1); }
+  54% { transform: scale(0.98); }
+  64%, 100% { opacity: 1; transform: scale(1); }
+}
+@keyframes how-browse-ring {
+  0%, 46% { opacity: 0; }
+  54%, 100% { opacity: 1; }
 }
 @keyframes how-browse-dim {
   0%, 8% { opacity: 0; transform: translateY(0.45rem) scale(0.97); }
@@ -740,23 +789,25 @@
   66%, 100% { opacity: 1; }
 }
 @keyframes how-book-btn {
-  0%, 8% { opacity: 0; transform: scale(0.97); }
-  18%, 52% { opacity: 1; transform: scale(1); }
-  58% { opacity: 1; transform: scale(0.96); }
-  68%, 100% { opacity: 0; transform: scale(0.97); }
+  0%, 8% { opacity: 0; transform: scale(0.97); filter: blur(0); }
+  18%, 52% { opacity: 1; transform: scale(1); filter: blur(0); }
+  58% { opacity: 1; transform: scale(0.96); filter: blur(0); }
+  64% { opacity: 0.35; transform: scale(0.97); filter: blur(2px); }
+  70%, 100% { opacity: 0; transform: scale(0.97); filter: blur(2px); }
 }
 @keyframes how-book-success {
-  0%, 62% { opacity: 0; transform: scale(0.97); }
-  76%, 100% { opacity: 1; transform: scale(1); }
+  0%, 58% { opacity: 0; transform: scale(0.97); filter: blur(2px); }
+  64% { opacity: 0.55; transform: scale(0.99); filter: blur(2px); }
+  72%, 100% { opacity: 1; transform: scale(1); filter: blur(0); }
 }
 @keyframes how-cursor-book {
-  0% { opacity: 0; transform: translate(1.2rem, -1.6rem) scale(1); }
-  18% { opacity: 1; transform: translate(1.2rem, -1.6rem) scale(1); }
-  40% { opacity: 1; transform: translate(0.15rem, 0.2rem) scale(1); }
-  50% { transform: translate(0.15rem, 0.2rem) scale(0.86); }
-  58% { transform: translate(0.15rem, 0.2rem) scale(1); }
-  78% { opacity: 1; transform: translate(0.15rem, 0.2rem) scale(1); }
-  100% { opacity: 0; transform: translate(0.15rem, 0.2rem) scale(1); }
+  0% { opacity: 0; transform: translate(-2px, 1.05rem) scale(1); }
+  18% { opacity: 1; transform: translate(-2px, 1.05rem) scale(1); }
+  40% { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+  50% { transform: translate(-2px, -2px) scale(0.86); }
+  58% { transform: translate(-2px, -2px) scale(1); }
+  78% { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+  100% { opacity: 0; transform: translate(-2px, -2px) scale(1); }
 }
 @keyframes how-list-form {
   0% { opacity: 0; transform: translateY(0.4rem) scale(0.97); }
