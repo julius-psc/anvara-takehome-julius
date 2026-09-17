@@ -13,7 +13,10 @@ import type { BadgeTone } from '@/app/components/badge';
 // icon type keeps this decoupled from Tabler's own type exports.
 type IconComponent = ComponentType<{ size?: number; stroke?: number; className?: string }>;
 
-export const AD_SLOT_TYPE_META: Record<string, { label: string; icon: IconComponent; tone: BadgeTone }> = {
+export const AD_SLOT_TYPE_META: Record<
+  string,
+  { label: string; icon: IconComponent; tone: BadgeTone }
+> = {
   DISPLAY: { label: 'Display', icon: IconLayoutGrid, tone: 'info' },
   VIDEO: { label: 'Video', icon: IconVideo, tone: 'danger' },
   NATIVE: { label: 'Native', icon: IconArticle, tone: 'neutral' },

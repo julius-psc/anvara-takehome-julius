@@ -23,7 +23,11 @@ export function AdSlotFormModal({ adSlot, triggerLabel, triggerClassName }: AdSl
         {triggerLabel}
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)} title={adSlot ? 'Edit ad slot' : 'Create ad slot'}>
+      <Modal
+        open={open}
+        onClose={() => setOpen(false)}
+        title={adSlot ? 'Edit ad slot' : 'Create ad slot'}
+      >
         <AdSlotForm adSlot={adSlot} onDone={() => setOpen(false)} />
       </Modal>
     </>

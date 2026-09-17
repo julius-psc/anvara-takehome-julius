@@ -1,3 +1,4 @@
+import { IconCoin } from '@tabler/icons-react';
 import { cn } from '@/lib/utils';
 import { FEATURES, type Audience, type FeatureItem } from './content';
 
@@ -7,23 +8,21 @@ function FeatureIcon({ name }: { name: FeatureItem['icon'] }) {
     case 'browse':
       return (
         <svg className={common} viewBox="0 0 20 20" fill="none" aria-hidden>
-          <rect x="2.5" y="3.5" width="15" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
+          <rect
+            x="2.5"
+            y="3.5"
+            width="15"
+            height="13"
+            rx="2"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
           <path d="M2.5 7.5h15" stroke="currentColor" strokeWidth="1.5" />
           <path d="M6 11h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       );
     case 'budget':
-      return (
-        <svg className={common} viewBox="0 0 20 20" fill="none" aria-hidden>
-          <circle cx="10" cy="10" r="7.25" stroke="currentColor" strokeWidth="1.5" />
-          <path
-            d="M10 6.5v7M7.75 8.25c.4-.7 1.15-1 2.25-1 1.35 0 2.25.6 2.25 1.6 0 .85-.6 1.35-2 1.7-1.5.4-2.25.9-2.25 1.85 0 1.05 1 1.6 2.35 1.6 1.15 0 1.9-.35 2.3-1.05"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-          />
-        </svg>
-      );
+      return <IconCoin size={24} stroke={1.5} aria-hidden />;
     case 'list':
       return (
         <svg className={common} viewBox="0 0 20 20" fill="none" aria-hidden>
@@ -97,7 +96,7 @@ function FeatureGroup({
     <div
       className={cn(
         'transition-opacity duration-300 ease-out',
-        active ? 'opacity-100' : 'opacity-40',
+        active ? 'opacity-100' : 'opacity-40'
       )}
       aria-current={active ? 'true' : undefined}
     >

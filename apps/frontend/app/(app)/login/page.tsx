@@ -169,7 +169,10 @@ export default function LoginPage() {
 
             <div className="space-y-4">
               <div>
-                <label htmlFor="login-email" className="mb-1.5 block text-sm font-medium text-(--color-foreground)">
+                <label
+                  htmlFor="login-email"
+                  className="mb-1.5 block text-sm font-medium text-(--color-foreground)"
+                >
                   Email
                 </label>
                 <input
@@ -181,7 +184,10 @@ export default function LoginPage() {
                 />
               </div>
               <div>
-                <label htmlFor="login-password" className="mb-1.5 block text-sm font-medium text-(--color-foreground)">
+                <label
+                  htmlFor="login-password"
+                  className="mb-1.5 block text-sm font-medium text-(--color-foreground)"
+                >
                   Password
                 </label>
                 <input
@@ -223,14 +229,7 @@ export default function LoginPage() {
 
       {/* Brand panel — desktop */}
       <div className="relative hidden overflow-hidden lg:block">
-        <Image
-          src={loginImg}
-          alt=""
-          fill
-          priority
-          sizes="50vw"
-          className="object-cover"
-        />
+        <Image src={loginImg} alt="" fill priority sizes="50vw" className="object-cover" />
         <div
           className="absolute inset-0 bg-linear-to-t from-black/70 via-black/35 to-black/15"
           aria-hidden

@@ -113,21 +113,9 @@ export function Menu({ label, children, trigger, triggerClassName, align = 'righ
             className={`absolute top-full z-20 mt-1 min-w-40 rounded-lg border border-(--color-border) bg-(--color-surface) p-1 shadow-(--shadow-md) ${
               align === 'left' ? 'left-0 origin-top-left' : 'right-0 origin-top-right'
             }`}
-            initial={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, transform: 'scale(0.96)' }
-            }
-            animate={
-              reduceMotion
-                ? { opacity: 1 }
-                : { opacity: 1, transform: 'scale(1)' }
-            }
-            exit={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, transform: 'scale(0.96)' }
-            }
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'scale(0.96)' }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, transform: 'scale(1)' }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, transform: 'scale(0.96)' }}
             transition={transition}
           >
             {children(close)}

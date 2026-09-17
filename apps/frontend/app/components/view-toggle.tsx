@@ -7,7 +7,13 @@ import type { ViewMode } from '@/lib/use-view-preference';
 // rounded-lg (8px) track − p-1 (4px) padding → rounded-sm (4px) buttons.
 // Selected state is a static cue (surface + shadow); .pressable scale(0.97) on press;
 // only the changed properties transition.
-export function ViewToggle({ view, onChange }: { view: ViewMode; onChange: (v: ViewMode) => void }) {
+export function ViewToggle({
+  view,
+  onChange,
+}: {
+  view: ViewMode;
+  onChange: (v: ViewMode) => void;
+}) {
   const options: { key: ViewMode; label: string; Icon: typeof IconLayoutGrid }[] = [
     { key: 'card', label: 'Card view', Icon: IconLayoutGrid },
     { key: 'list', label: 'List view', Icon: IconLayoutList },

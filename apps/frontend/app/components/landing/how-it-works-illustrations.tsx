@@ -32,7 +32,15 @@ function RoleToggle() {
       <span className="how-illu__toggle-pill" />
       <span className="how-illu__toggle-opt how-illu__toggle-opt--sponsor">
         <svg className="how-illu__icon how-illu__icon--sponsor" viewBox="0 0 16 16" fill="none">
-          <rect x="2" y="5.5" width="12" height="8" rx="1.5" stroke="currentColor" strokeWidth="1.4" />
+          <rect
+            x="2"
+            y="5.5"
+            width="12"
+            height="8"
+            rx="1.5"
+            stroke="currentColor"
+            strokeWidth="1.4"
+          />
           <path d="M6 5.5V4.25a2 2 0 0 1 4 0V5.5" stroke="currentColor" strokeWidth="1.4" />
         </svg>
         Sponsor
@@ -58,16 +66,14 @@ function RoleToggle() {
  * Step 01 — Sign in as this audience.
  * Login role toggle (matches /login) → the matching dashboard unlocks.
  */
-function AccountIllustration({ playing, audience }: StepIllustrationProps & { audience: Audience }) {
+function AccountIllustration({
+  playing,
+  audience,
+}: StepIllustrationProps & { audience: Audience }) {
   const isSponsor = audience === 'sponsor';
 
   return (
-    <div
-      className={root(
-        `how-illu how-illu--account how-illu--role-${audience}`,
-        playing,
-      )}
-    >
+    <div className={root(`how-illu how-illu--account how-illu--role-${audience}`, playing)}>
       <p className="how-illu__kicker">Continue as</p>
       <RoleToggle />
       <div className="how-illu__dash">

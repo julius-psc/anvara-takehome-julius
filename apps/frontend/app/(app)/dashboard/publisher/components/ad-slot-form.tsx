@@ -76,11 +76,7 @@ export function AdSlotForm({ adSlot, onDone }: AdSlotFormProps) {
 
       <div>
         <label className="block text-sm font-medium">Name</label>
-        <input
-          {...register('name')}
-          placeholder="e.g. Homepage top banner"
-          className={inputCls}
-        />
+        <input {...register('name')} placeholder="e.g. Homepage top banner" className={inputCls} />
         {errors.name && <p className={errCls}>{errors.name.message}</p>}
       </div>
 

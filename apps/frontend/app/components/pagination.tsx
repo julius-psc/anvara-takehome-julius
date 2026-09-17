@@ -6,7 +6,11 @@ import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 const DEFAULT_PAGE_SIZE = 9;
 
 /** Keep page in range and reset to 1 when `resetKey` changes (e.g. filter). */
-export function usePagination(total: number, resetKey: string | number, pageSize = DEFAULT_PAGE_SIZE) {
+export function usePagination(
+  total: number,
+  resetKey: string | number,
+  pageSize = DEFAULT_PAGE_SIZE
+) {
   const [page, setPage] = useState(1);
   const [prevResetKey, setPrevResetKey] = useState(resetKey);
   const totalPages = Math.max(1, Math.ceil(total / pageSize) || 1);

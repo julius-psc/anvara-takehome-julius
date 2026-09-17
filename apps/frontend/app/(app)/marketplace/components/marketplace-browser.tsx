@@ -72,7 +72,7 @@ export function MarketplaceBrowser({ adSlots }: { adSlots: AdSlot[] }) {
   const pageItems = slice(shown);
 
   const selectedLive = selected
-    ? withOverrides.find((s) => s.id === selected.id) ?? selected
+    ? (withOverrides.find((s) => s.id === selected.id) ?? selected)
     : null;
 
   return (

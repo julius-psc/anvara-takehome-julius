@@ -16,10 +16,7 @@ const LOGOS: PlaceholderLogo[] = [
     name: 'Northpeak',
     glyph: (
       <svg viewBox="0 0 20 20" className={ICON_CLASS} aria-hidden>
-        <path
-          fill="currentColor"
-          d="M10 2.5 17.5 16H13l-3-5.5L7 16H2.5L10 2.5Z"
-        />
+        <path fill="currentColor" d="M10 2.5 17.5 16H13l-3-5.5L7 16H2.5L10 2.5Z" />
       </svg>
     ),
   },
@@ -119,8 +116,7 @@ const LOGOS: PlaceholderLogo[] = [
   },
 ];
 
-const EDGE_MASK =
-  'linear-gradient(to right, transparent, black 14%, black 86%, transparent)';
+const EDGE_MASK = 'linear-gradient(to right, transparent, black 14%, black 86%, transparent)';
 
 function LogoTrack({ ariaHidden }: { ariaHidden?: boolean }) {
   return (

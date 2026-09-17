@@ -42,7 +42,7 @@ export function Modal({
   // correct without a synchronous setState in an effect; the modal only renders
   // its content when open (post-hydration), so there's no SSR mismatch.
   const [isSheet, setIsSheet] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches,
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches
   );
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -110,7 +110,10 @@ export function Modal({
     'relative z-10 max-h-[90dvh] w-full overflow-y-auto rounded-t-2xl border border-(--color-border) bg-(--color-surface) p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] shadow-(--shadow-md) outline-none sm:max-w-md sm:rounded-xl sm:pb-6';
 
   const panelClass = panelClassName
-    ? panelClassName.replace(/\banimate-modal-in\b/g, '').replace(/\s+/g, ' ').trim()
+    ? panelClassName
+        .replace(/\banimate-modal-in\b/g, '')
+        .replace(/\s+/g, ' ')
+        .trim()
     : defaultPanelClass;
 
   return (

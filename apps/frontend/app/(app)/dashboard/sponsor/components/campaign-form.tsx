@@ -49,9 +49,7 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
 
     if (result.success) {
       toast.success(isEdit ? 'Campaign updated' : 'Campaign created', {
-        description: isEdit
-          ? 'Your changes have been saved.'
-          : 'Your new campaign is ready to go.',
+        description: isEdit ? 'Your changes have been saved.' : 'Your new campaign is ready to go.',
       });
       onDone();
       return;
@@ -84,11 +82,7 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
 
       <div>
         <label className="block text-sm font-medium">Name</label>
-        <input
-          {...register('name')}
-          placeholder="Q1 Product Launch"
-          className={inputCls}
-        />
+        <input {...register('name')} placeholder="Q1 Product Launch" className={inputCls} />
         {errors.name && <p className={errCls}>{errors.name.message}</p>}
       </div>
 
@@ -132,10 +126,7 @@ export function CampaignForm({ campaign, onDone }: CampaignFormProps) {
         <div>
           <label className="block text-sm font-medium">Status</label>
           <div className="relative mt-1 w-fit">
-            <select
-              {...register('status')}
-              className={`${inputCls} mt-0 appearance-none pr-8`}
-            >
+            <select {...register('status')} className={`${inputCls} mt-0 appearance-none pr-8`}>
               {CAMPAIGN_STATUSES.map((s) => (
                 <option key={s} value={s}>
                   {formatStatusLabel(s)}

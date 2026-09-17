@@ -20,7 +20,10 @@ export function AdSlotGridSkeleton() {
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5">
+          <div
+            key={i}
+            className="rounded-xl border border-(--color-border) bg-(--color-surface) p-5"
+          >
             <div className="flex items-start justify-between">
               <div className="h-4 w-32 animate-pulse rounded bg-(--color-border)" />
               <div className="h-5 w-16 animate-pulse rounded-full bg-(--color-border)" />

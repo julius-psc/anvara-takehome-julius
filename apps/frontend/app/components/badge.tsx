@@ -20,8 +20,7 @@ const solidToneStyles: Record<BadgeTone, string> = {
     'bg-(--color-success-soft) text-(--color-success) ring-(--color-success)/25 [@media(prefers-color-scheme:light)]:bg-(--color-success) [@media(prefers-color-scheme:light)]:text-white/90 [@media(prefers-color-scheme:light)]:ring-transparent',
   warning:
     'bg-(--color-warning-soft) text-(--color-warning) ring-(--color-warning)/25 [@media(prefers-color-scheme:light)]:bg-(--color-warning) [@media(prefers-color-scheme:light)]:text-white/90 [@media(prefers-color-scheme:light)]:ring-transparent',
-  info:
-    'bg-(--color-info-soft) text-(--color-info) ring-(--color-info)/25 [@media(prefers-color-scheme:light)]:bg-(--color-info) [@media(prefers-color-scheme:light)]:text-white/90 [@media(prefers-color-scheme:light)]:ring-transparent',
+  info: 'bg-(--color-info-soft) text-(--color-info) ring-(--color-info)/25 [@media(prefers-color-scheme:light)]:bg-(--color-info) [@media(prefers-color-scheme:light)]:text-white/90 [@media(prefers-color-scheme:light)]:ring-transparent',
   danger:
     'bg-(--color-error-soft) text-(--color-error) ring-(--color-error)/25 [@media(prefers-color-scheme:light)]:bg-(--color-error) [@media(prefers-color-scheme:light)]:text-white/90 [@media(prefers-color-scheme:light)]:ring-transparent',
 };

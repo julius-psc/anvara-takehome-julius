@@ -13,8 +13,8 @@ export default function NotFound() {
         This page doesn&rsquo;t exist
       </h1>
       <p className="mt-3 max-w-md text-pretty text-base leading-relaxed text-(--color-muted)">
-        The page you&rsquo;re looking for may have moved, or the link might be broken. Let&rsquo;s get
-        you back on track.
+        The page you&rsquo;re looking for may have moved, or the link might be broken. Let&rsquo;s
+        get you back on track.
       </p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         <Link href="/" className="btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold">

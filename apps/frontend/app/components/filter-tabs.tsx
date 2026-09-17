@@ -43,7 +43,9 @@ function TabLabelContent({
     <>
       {icon}
       {label}
-      {count !== undefined && <span className={`font-numeric ${countClassName ?? ''}`}>{count}</span>}
+      {count !== undefined && (
+        <span className={`font-numeric ${countClassName ?? ''}`}>{count}</span>
+      )}
     </>
   );
 }
@@ -95,8 +97,10 @@ export function FilterTabs<T extends string>({
         {options.map(({ key, label, count, icon }) => {
           const selected = value === key;
           const highlighted = highlight === key;
-          const tone = selected || highlighted ? 'text-(--color-foreground)' : 'text-(--color-muted)';
-          const countTone = selected || highlighted ? 'text-(--color-muted)' : 'text-(--color-subtle)';
+          const tone =
+            selected || highlighted ? 'text-(--color-foreground)' : 'text-(--color-muted)';
+          const countTone =
+            selected || highlighted ? 'text-(--color-muted)' : 'text-(--color-subtle)';
 
           return (
             <button
@@ -122,7 +126,10 @@ export function FilterTabs<T extends string>({
 
               <span className="relative z-10 inline-grid">
                 {/* Reserve semibold metrics so wght tween never shoves neighbors */}
-                <span className="invisible inline-flex items-center gap-1.5 font-semibold select-none" aria-hidden>
+                <span
+                  className="invisible inline-flex items-center gap-1.5 font-semibold select-none"
+                  aria-hidden
+                >
                   <TabLabelContent icon={icon} label={label} count={count} />
                 </span>
                 <motion.span
@@ -131,7 +138,12 @@ export function FilterTabs<T extends string>({
                   animate={{ fontVariationSettings: selected ? '"wght" 600' : '"wght" 500' }}
                   transition={weightTransition}
                 >
-                  <TabLabelContent icon={icon} label={label} count={count} countClassName={countTone} />
+                  <TabLabelContent
+                    icon={icon}
+                    label={label}
+                    count={count}
+                    countClassName={countTone}
+                  />
                 </motion.span>
               </span>
             </button>

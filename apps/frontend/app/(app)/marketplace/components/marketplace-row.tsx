@@ -33,7 +33,9 @@ export function MarketplaceRow({ adSlot, onOpen }: Props) {
           <div className="flex min-w-0 items-center gap-2">
             <h3 className="truncate font-medium text-(--color-foreground)">{adSlot.name}</h3>
             {adSlot.publisher && (
-              <span className="truncate text-xs text-(--color-subtle)">by {adSlot.publisher.name}</span>
+              <span className="truncate text-xs text-(--color-subtle)">
+                by {adSlot.publisher.name}
+              </span>
             )}
             <Badge tone={meta?.tone ?? 'neutral'}>
               {TypeIcon && <TypeIcon size={13} stroke={1.8} />}

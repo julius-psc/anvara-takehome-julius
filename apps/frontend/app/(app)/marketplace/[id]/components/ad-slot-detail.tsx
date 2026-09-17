@@ -282,7 +282,9 @@ export function AdSlotDetail({
       </div>
 
       {adSlot.description && (
-        <p className="text-pretty text-sm leading-relaxed text-(--color-muted)">{adSlot.description}</p>
+        <p className="text-pretty text-sm leading-relaxed text-(--color-muted)">
+          {adSlot.description}
+        </p>
       )}
 
       <div className="flex items-end justify-between gap-3">
@@ -291,7 +293,9 @@ export function AdSlotDetail({
             <span
               className={`h-1.5 w-1.5 rounded-full ${adSlot.isAvailable ? 'bg-(--color-success)' : 'bg-(--color-subtle)'}`}
             />
-            <span className={adSlot.isAvailable ? 'text-(--color-success)' : 'text-(--color-muted)'}>
+            <span
+              className={adSlot.isAvailable ? 'text-(--color-success)' : 'text-(--color-muted)'}
+            >
               {adSlot.isAvailable ? 'Available' : 'Booked'}
             </span>
           </span>
@@ -327,9 +331,7 @@ export function AdSlotDetail({
                 : { opacity: 0, transform: 'translateY(4px) scale(0.98)' }
             }
             animate={
-              reduceMotion
-                ? { opacity: 1 }
-                : { opacity: 1, transform: 'translateY(0px) scale(1)' }
+              reduceMotion ? { opacity: 1 } : { opacity: 1, transform: 'translateY(0px) scale(1)' }
             }
             exit={{ opacity: 0 }}
             transition={{

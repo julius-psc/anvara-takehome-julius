@@ -107,7 +107,8 @@ export const HOW_IT_WORKS: Record<Audience, HowItWorksCopy> = {
       },
       {
         title: 'Book the placement',
-        description: 'Request the slot. It flips to Booked — the publisher gets the inbound request.',
+        description:
+          'Request the slot. It flips to Booked — the publisher gets the inbound request.',
       },
     ],
   },
@@ -117,15 +118,18 @@ export const HOW_IT_WORKS: Record<Audience, HowItWorksCopy> = {
     steps: [
       {
         title: 'Sign in as a publisher',
-        description: 'Choose Publisher on login. Your ad slots dashboard is the inventory you list.',
+        description:
+          'Choose Publisher on login. Your ad slots dashboard is the inventory you list.',
       },
       {
         title: 'List a slot with a rate',
-        description: 'Name, format, and price. The listing goes live in the marketplace sponsors already browse.',
+        description:
+          'Name, format, and price. The listing goes live in the marketplace sponsors already browse.',
       },
       {
         title: 'Get booked',
-        description: 'A booking request lands on that slot. Available becomes Booked — no outbound deck.',
+        description:
+          'A booking request lands on that slot. Available becomes Booked — no outbound deck.',
       },
     ],
   },

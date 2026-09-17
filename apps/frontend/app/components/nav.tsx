@@ -66,7 +66,11 @@ export function Nav() {
   const navInner = (
     <>
       <div className="flex items-center gap-5">
-        <Link href="/" className="flex shrink-0 items-center rounded-lg px-1 py-0.5" aria-label="Anvara home">
+        <Link
+          href="/"
+          className="flex shrink-0 items-center rounded-lg px-1 py-0.5"
+          aria-label="Anvara home"
+        >
           <Image
             src={anvaraLogo}
             alt=""

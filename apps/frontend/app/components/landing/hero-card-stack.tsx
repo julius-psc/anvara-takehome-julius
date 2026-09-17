@@ -45,11 +45,7 @@ type AccordionItem = {
 };
 
 /** Accordion stack — in-place height morph, serialized open/close, sibling layout slide. */
-export function HeroCardStack({
-  audience,
-  className = '',
-  autoPlay = true,
-}: HeroCardStackProps) {
+export function HeroCardStack({ audience, className = '', autoPlay = true }: HeroCardStackProps) {
   const reduceMotion = useReducedMotion();
   const items = buildItems(audience);
   const itemIdsKey = items.map((item) => item.id).join('|');

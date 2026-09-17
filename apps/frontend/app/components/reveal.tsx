@@ -18,12 +18,7 @@ type RevealProps = {
 };
 
 /** One-shot load-in: blur + fade + rise (or transform-only for frosted shells). */
-export function Reveal({
-  children,
-  className,
-  delay = 0,
-  transformOnly = false,
-}: RevealProps) {
+export function Reveal({ children, className, delay = 0, transformOnly = false }: RevealProps) {
   const reduceMotion = useReducedMotion();
 
   if (reduceMotion) {

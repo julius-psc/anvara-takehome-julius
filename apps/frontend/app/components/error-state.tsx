@@ -23,7 +23,9 @@ export function ErrorState({
         <IconAlertTriangle size={20} stroke={1.8} aria-hidden />
       </div>
       <h2 className="mt-4 text-base font-semibold text-(--color-error)">{title}</h2>
-      <p className="mx-auto mt-1 max-w-sm text-pretty text-sm text-(--color-error)/80">{description}</p>
+      <p className="mx-auto mt-1 max-w-sm text-pretty text-sm text-(--color-error)/80">
+        {description}
+      </p>
       <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
         {onRetry && (
           <button

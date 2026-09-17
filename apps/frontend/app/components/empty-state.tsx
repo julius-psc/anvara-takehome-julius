@@ -28,7 +28,9 @@ export function EmptyState({
       </div>
       <h3 className="mt-4 text-sm font-medium text-(--color-foreground)">{title}</h3>
       {description && (
-        <p className="mx-auto mt-1 max-w-sm text-pretty text-sm text-(--color-muted)">{description}</p>
+        <p className="mx-auto mt-1 max-w-sm text-pretty text-sm text-(--color-muted)">
+          {description}
+        </p>
       )}
       {action && <div className="mt-5 flex justify-center">{action}</div>}
     </div>
