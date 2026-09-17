@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import anvaraLogo from '@/app/assets/icons/anvara-logo.svg';
 import { authClient } from '@/auth-client';
+import { MobileMenu } from './mobile-menu';
 
 type UserRole = 'sponsor' | 'publisher' | null;
 
@@ -43,6 +44,16 @@ export function Nav() {
 
   const isHome = pathname === '/';
 
+  const signOut = async () => {
+    await authClient.signOut({
+      fetchOptions: {
+        onSuccess: () => {
+          window.location.href = '/';
+        },
+      },
+    });
+  };
+
   const linkClass = (href: string) => {
     const isActive = pathname === href || pathname.startsWith(`${href}/`);
     return `rounded-lg px-3 py-1.5 text-sm transition-colors ${
@@ -66,7 +77,7 @@ export function Nav() {
             priority={isHome}
           />
         </Link>
-        <div className="flex items-center gap-1">
+        <div className="hidden items-center gap-1 sm:flex">
           {links.map((link) => (
             <Link key={link.href} href={link.href} className={linkClass(link.href)}>
               {link.label}
@@ -76,45 +87,50 @@ export function Nav() {
       </div>
 
       <div className="flex items-center gap-3 pr-1">
-        {isPending ? (
-          <div className="h-5 w-20 animate-pulse rounded-lg bg-(--color-border)" />
-        ) : user ? (
-          <>
-            <span
-              className="hidden items-center gap-1.5 rounded-full bg-(--color-surface) py-0.5 pr-2.5 pl-0.5 sm:inline-flex"
-              title={user.name}
-              aria-label={role ? `${user.name}, ${role}` : user.name}
-            >
+        <div className="hidden items-center gap-3 sm:flex">
+          {isPending ? (
+            <div className="h-5 w-20 animate-pulse rounded-lg bg-(--color-border)" />
+          ) : user ? (
+            <>
               <span
-                className="flex size-6 shrink-0 items-center justify-center rounded-full bg-(--color-primary) text-xs font-semibold text-(--color-on-primary)"
-                aria-hidden
+                className="inline-flex items-center gap-1.5 rounded-full bg-(--color-surface) py-0.5 pr-2.5 pl-0.5"
+                title={user.name}
+                aria-label={role ? `${user.name}, ${role}` : user.name}
               >
-                {(user.name?.trim().charAt(0) || '?').toUpperCase()}
+                <span
+                  className="flex size-6 shrink-0 items-center justify-center rounded-full bg-(--color-primary) text-xs font-semibold text-(--color-on-primary)"
+                  aria-hidden
+                >
+                  {(user.name?.trim().charAt(0) || '?').toUpperCase()}
+                </span>
+                {role && (
+                  <span className="text-xs font-medium capitalize text-(--color-muted)">
+                    {role}
+                  </span>
+                )}
               </span>
-              {role && (
-                <span className="text-xs font-medium capitalize text-(--color-muted)">{role}</span>
-              )}
-            </span>
-            <button
-              onClick={async () => {
-                await authClient.signOut({
-                  fetchOptions: {
-                    onSuccess: () => {
-                      window.location.href = '/';
-                    },
-                  },
-                });
-              }}
-              className="rounded-lg border border-(--color-border) px-3 py-1.5 text-sm font-medium transition-colors hover:bg-(--color-surface-hover)"
-            >
-              Sign out
-            </button>
-          </>
-        ) : (
-          <Link href="/login" className="btn-primary rounded-lg px-4 py-2 text-sm font-medium">
-            Sign in
-          </Link>
-        )}
+              <button
+                onClick={signOut}
+                className="rounded-lg border border-(--color-border) px-3 py-1.5 text-sm font-medium transition-colors hover:bg-(--color-surface-hover)"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <Link href="/login" className="btn-primary rounded-lg px-4 py-2 text-sm font-medium">
+              Sign in
+            </Link>
+          )}
+        </div>
+
+        <MobileMenu
+          links={links}
+          pathname={pathname}
+          user={user}
+          role={role}
+          isPending={isPending}
+          onSignOut={signOut}
+        />
       </div>
     </>
   );
