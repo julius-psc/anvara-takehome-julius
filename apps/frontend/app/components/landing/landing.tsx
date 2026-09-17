@@ -14,8 +14,8 @@ export function Landing() {
   return (
     <>
       <LandingHero audience={audience} onAudienceChange={setAudience} />
-      <LandingFeatures />
-      <LandingHowItWorks />
+      <LandingFeatures audience={audience} />
+      <LandingHowItWorks audience={audience} />
       <LandingCta />
     </>
   );

@@ -1,9 +1,16 @@
 import type { Metadata, Viewport } from 'next';
+import { Playfair_Display } from 'next/font/google';
 import { GeistSans } from 'geist/font/sans';
 import { GeistMono } from 'geist/font/mono';
 import { Toaster } from 'sonner';
 import './globals.css';
 import { Nav } from './components/nav';
+
+const playfairDisplay = Playfair_Display({
+  subsets: ['latin'],
+  variable: '--font-playfair-display',
+  display: 'swap',
+});
 
 const siteUrl = process.env.BETTER_AUTH_URL || 'http://localhost:3847';
 
@@ -59,7 +66,10 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${GeistSans.variable} ${GeistMono.variable}`}>
+    <html
+      lang="en"
+      className={`${GeistSans.variable} ${GeistMono.variable} ${playfairDisplay.variable}`}
+    >
       <body className="flex min-h-dvh flex-col antialiased">
         <Nav />
         <main className="flex flex-1 flex-col">{children}</main>

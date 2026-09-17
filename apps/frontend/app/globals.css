@@ -50,8 +50,9 @@
   --color-tooltip: #1a1a1a;
   --color-tooltip-fg: #ffffff;
 
-  /* Typography (Geist, wired up in layout.tsx) */
+  /* Typography (Geist + Playfair Display, wired up in layout.tsx) */
   --font-sans: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-playfair-display), ui-serif, Georgia, serif;
   --font-mono: var(--font-geist-mono), ui-monospace, 'SF Mono', monospace;
 
   /* Elevation */
@@ -211,24 +212,24 @@
     position: relative;
     display: flex;
     width: 100%;
-    max-width: 17rem;
-    height: 11rem;
+    max-width: 22rem;
+    min-height: 16rem;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.85rem;
+    gap: 0.65rem;
   }
 
-  /* Shared mini card shell — mirrors AdSlotCard / CampaignCard. */
+  /* Shared mini card shell — mirrors AdSlotCard / MarketplaceCard. */
   .how-illu__card {
     display: flex;
     width: 100%;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: 0.4rem;
     border-radius: 0.85rem;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
-    padding: 0.8rem 0.9rem;
+    padding: 0.85rem 0.95rem;
     box-shadow: var(--shadow-sm);
   }
 
@@ -240,7 +241,8 @@
   }
 
   .how-illu__card-name {
-    font-size: 0.8125rem;
+    min-width: 0;
+    font-size: 0.9375rem;
     font-weight: 500;
     color: var(--color-foreground);
   }
@@ -252,11 +254,20 @@
     gap: 0.5rem;
   }
 
+  .how-illu__by {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.75rem;
+    color: var(--color-subtle);
+  }
+
   /* Badge replica — soft fill + inset ring, one class per tone. */
   .how-illu__chip {
+    flex-shrink: 0;
     border-radius: 9999px;
-    padding: 0.1rem 0.5rem;
-    font-size: 0.625rem;
+    padding: 0.15rem 0.55rem;
+    font-size: 0.6875rem;
     font-weight: 500;
     box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 25%, transparent);
   }
@@ -268,13 +279,17 @@
     background: var(--color-warning-soft);
     color: var(--color-warning);
   }
+  .how-illu__chip--success {
+    background: var(--color-success-soft);
+    color: var(--color-success);
+  }
 
   /* Availability line — dot + label, like the real card. */
   .how-illu__avail {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
-    font-size: 0.6875rem;
+    font-size: 0.8125rem;
     font-weight: 500;
   }
   .how-illu__avail--free {
@@ -297,250 +312,497 @@
 
   .how-illu__price {
     font-family: var(--font-mono);
-    font-size: 0.8125rem;
+    font-size: 0.9375rem;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     color: var(--color-foreground);
   }
   .how-illu__price small {
-    font-size: 0.625rem;
+    font-size: 0.6875rem;
     font-weight: 400;
     color: var(--color-muted);
   }
 
-  /* ——— 01 Create your account ——— */
-  .how-illu--account {
-    gap: 1rem;
-  }
-
-  .how-illu__toggle {
-    position: relative;
-    display: inline-flex;
-    gap: 0.15rem;
-    border-radius: 0.7rem;
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    padding: 0.25rem;
-  }
-  .how-illu__toggle-pill {
-    position: absolute;
-    top: 0.25rem;
-    bottom: 0.25rem;
-    left: 0.25rem;
-    width: calc(50% - 0.25rem);
-    border-radius: 0.55rem;
-    background: var(--color-accent);
-    box-shadow: var(--shadow-sm);
-    transform: translateX(0);
-  }
-  .how-illu__toggle-opt {
-    position: relative;
-    z-index: 1;
-    width: 4.4rem;
-    padding: 0.32rem 0;
-    text-align: center;
-    font-size: 0.6875rem;
-    font-weight: 600;
-    color: var(--color-muted);
-  }
-  .how-illu__toggle-opt--sponsor {
-    color: var(--color-on-primary);
-  }
-
-  .how-illu__dash {
-    display: flex;
-    width: 10.4rem;
-    align-items: center;
-    gap: 0.6rem;
-    border-radius: 0.7rem;
-    border: 1px solid var(--color-border);
-    background: var(--color-surface);
-    padding: 0.55rem 0.65rem;
-    box-shadow: var(--shadow-sm);
-  }
-  .how-illu__dash-avatar {
-    width: 1.35rem;
-    height: 1.35rem;
-    flex-shrink: 0;
-    border-radius: 9999px;
-    background: var(--color-accent);
-  }
-  .how-illu__dash-lines {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 0.3rem;
-  }
-  .how-illu__dash-line {
-    height: 0.4rem;
-    border-radius: 9999px;
-    background: var(--color-border-strong);
-  }
-  .how-illu__dash-line--short {
-    width: 55%;
-    background: var(--color-border);
-  }
-
-  .how-illu__cursor {
-    position: absolute;
-    left: 50%;
-    top: 1.1rem;
-    width: 1.15rem;
-    height: 1.15rem;
-    color: var(--color-foreground);
-    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.25));
-    opacity: 0;
-    transform: translate(1.7rem, 1.8rem);
-  }
-
-  .how-illu--account.how-illu--playing .how-illu__toggle-pill {
-    animation: how-role-pill 3s var(--ease-out) forwards;
-  }
-  .how-illu--account.how-illu--playing .how-illu__toggle-opt--sponsor {
-    animation: how-role-opt-sponsor 3s var(--ease-out) forwards;
-  }
-  .how-illu--account.how-illu--playing .how-illu__toggle-opt--publisher {
-    animation: how-role-opt-publisher 3s var(--ease-out) forwards;
-  }
-  .how-illu--account.how-illu--playing .how-illu__dash {
-    animation: how-role-dash 3s var(--ease-out) forwards;
-  }
-  .how-illu--account.how-illu--playing .how-illu__cursor {
-    animation: how-role-cursor 3s var(--ease-out) forwards;
-  }
-
-  /* ——— 02 List or browse inventory ——— */
-  .how-illu--inventory {
-    gap: 0.65rem;
-  }
-  .how-illu--inventory .how-illu__card {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  .how-illu--inventory.how-illu--playing .how-illu__card--1 {
-    animation: how-slot-in 2.6s var(--ease-out) forwards;
-  }
-  .how-illu--inventory.how-illu--playing .how-illu__card--2 {
-    animation: how-slot-in 2.6s var(--ease-out) 0.18s backwards;
-  }
-
-  /* ——— 03 Book and run campaigns ——— */
   .how-illu__status {
     position: relative;
     display: inline-flex;
-    min-width: 4.6rem;
-    justify-content: flex-end;
-  }
-  .how-illu__status .how-illu__avail {
-    justify-content: flex-end;
+    min-width: 5.2rem;
   }
   .how-illu__status .how-illu__avail--free {
     position: absolute;
     inset: 0;
-    justify-content: flex-end;
     opacity: 0;
   }
   .how-illu__status .how-illu__avail--booked {
     opacity: 1;
   }
 
-  .how-illu__budget {
+  .how-illu__btn {
     display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.65rem;
+    background-image: var(--gradient-primary);
+    box-shadow: inset 0 0 16px 0 rgb(255 255 255 / 0.2);
+    color: var(--color-on-primary);
+    padding: 0.55rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
   }
-  .how-illu__budget-row {
+
+  .how-illu__cursor {
+    position: absolute;
+    z-index: 3;
+    width: 1.35rem;
+    height: 1.35rem;
+    color: var(--color-foreground);
+    filter: drop-shadow(0 1px 1px rgb(0 0 0 / 0.25));
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* ——— Sign in (role toggle → dashboard) ——— */
+  .how-illu--account {
+    gap: 0.75rem;
+  }
+  .how-illu__kicker {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-foreground);
+  }
+  .how-illu__toggle {
+    position: relative;
     display: flex;
-    align-items: baseline;
+    width: 100%;
+    gap: 0.2rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.25rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .how-illu__toggle-pill {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: 0.25rem;
+    width: calc((100% - 0.5rem - 0.2rem) / 2);
+    border-radius: 0.65rem;
+    background: var(--color-surface-hover);
+    box-shadow: var(--shadow-sm);
+  }
+  .how-illu--role-sponsor .how-illu__toggle-pill {
+    transform: translateX(0);
+  }
+  .how-illu--role-publisher .how-illu__toggle-pill {
+    transform: translateX(calc(100% + 0.2rem));
+  }
+  .how-illu__toggle-opt {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    flex: 1;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+  .how-illu__icon {
+    width: 1rem;
+    height: 1rem;
+    flex-shrink: 0;
+    color: var(--color-subtle);
+  }
+  .how-illu--role-sponsor .how-illu__toggle-opt--sponsor,
+  .how-illu--role-publisher .how-illu__toggle-opt--publisher {
+    color: var(--color-foreground);
+  }
+  .how-illu--role-sponsor .how-illu__icon--sponsor,
+  .how-illu--role-publisher .how-illu__icon--publisher {
+    color: var(--color-accent);
+  }
+
+  .how-illu__dash {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.85rem 0.95rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .how-illu__dash-title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-muted);
+  }
+  .how-illu__dash-row {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
     gap: 0.5rem;
   }
-  .how-illu__budget-spent {
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    font-weight: 600;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-foreground);
+
+  .how-illu--account .how-illu__cursor {
+    left: 25%;
+    top: 50%;
   }
-  .how-illu__budget-spent small {
-    font-size: 0.625rem;
-    font-weight: 400;
-    color: var(--color-muted);
-  }
-  .how-illu__budget-total {
-    font-family: var(--font-mono);
-    font-size: 0.625rem;
-    font-variant-numeric: tabular-nums;
-    color: var(--color-muted);
-  }
-  .how-illu__bar {
-    height: 0.32rem;
-    width: 100%;
-    overflow: hidden;
-    border-radius: 9999px;
-    background: var(--color-border);
-  }
-  .how-illu__bar-fill {
-    display: block;
-    height: 100%;
-    border-radius: inherit;
-    background: var(--color-accent);
-    transform: scaleX(0.7);
-    transform-origin: left center;
+  .how-illu--role-publisher .how-illu__cursor {
+    left: 75%;
   }
 
-  .how-illu--campaign.how-illu--playing .how-illu__avail--free {
-    animation: how-book-free 2.8s var(--ease-out) forwards;
+  .how-illu--account.how-illu--playing .how-illu__dash {
+    animation: how-role-dash 3.2s var(--ease-out) forwards;
   }
-  .how-illu--campaign.how-illu--playing .how-illu__avail--booked {
-    animation: how-book-booked 2.8s var(--ease-out) forwards;
+  .how-illu--role-sponsor.how-illu--playing .how-illu__toggle-opt--sponsor,
+  .how-illu--role-publisher.how-illu--playing .how-illu__toggle-opt--publisher {
+    animation: how-opt-press 3.2s var(--ease-out) forwards;
   }
-  .how-illu--campaign.how-illu--playing .how-illu__bar-fill {
-    animation: how-book-fill 2.8s var(--ease-out) forwards;
+  .how-illu--role-sponsor.how-illu--playing .how-illu__cursor {
+    animation: how-cursor-sponsor 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--role-publisher.how-illu--playing .how-illu__cursor {
+    animation: how-cursor-publisher 3.2s var(--ease-out) forwards;
+  }
+
+  /* ——— Sponsor: browse marketplace ——— */
+  .how-illu__card--pick {
+    position: relative;
+    box-shadow: 0 0 0 1.5px var(--color-accent);
+  }
+  .how-illu__card--dim {
+    opacity: 0.55;
+  }
+  .how-illu--browse {
+    gap: 0.65rem;
+  }
+  .how-illu--browse .how-illu__cursor {
+    left: 1.35rem;
+    top: calc(100% - 1.45rem);
+  }
+  .how-illu--browse.how-illu--playing .how-illu__card--pick {
+    animation: how-browse-pick 2s var(--ease-out) forwards;
+  }
+  .how-illu--browse.how-illu--playing .how-illu__card--dim {
+    animation: how-browse-dim 2s var(--ease-out) forwards;
+  }
+  .how-illu--browse.how-illu--playing .how-illu__cursor {
+    animation: how-cursor-browse 2s var(--ease-out) forwards;
+  }
+
+  /* ——— Sponsor: book placement ——— */
+  .how-illu__action {
+    position: relative;
+    min-height: 2.85rem;
+    margin-top: 0.35rem;
+  }
+  .how-illu__action .how-illu__btn,
+  .how-illu__action .how-illu__success {
+    position: absolute;
+    inset: 0;
+  }
+  .how-illu__success {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.12rem;
+    border-radius: 0.65rem;
+    background: var(--color-success-soft);
+    padding: 0.5rem 0.7rem;
+  }
+  .how-illu__success-title {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--color-success);
+  }
+  .how-illu__success-copy {
+    font-size: 0.6875rem;
+    color: color-mix(in srgb, var(--color-success) 80%, transparent);
+  }
+  .how-illu--book .how-illu__btn {
+    opacity: 0;
+  }
+  .how-illu--book .how-illu__cursor {
+    left: 58%;
+    top: 7.4rem;
+  }
+  .how-illu--book.how-illu--playing .how-illu__avail--free,
+  .how-illu--inbound.how-illu--playing .how-illu__avail--free {
+    animation: how-status-free 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--book.how-illu--playing .how-illu__avail--booked,
+  .how-illu--inbound.how-illu--playing .how-illu__avail--booked {
+    animation: how-status-booked 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--book.how-illu--playing .how-illu__btn {
+    animation: how-book-btn 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--book.how-illu--playing .how-illu__success {
+    animation: how-book-success 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--book.how-illu--playing .how-illu__cursor {
+    animation: how-cursor-book 3.2s var(--ease-out) forwards;
+  }
+
+  /* ——— Publisher: list a slot ——— */
+  .how-illu--list {
+    position: relative;
+  }
+  .how-illu__form {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.55rem;
+    background: var(--color-background);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .how-illu__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.28rem;
+  }
+  .how-illu__label {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-foreground);
+  }
+  .how-illu__input {
+    display: flex;
+    align-items: center;
+    min-height: 2.1rem;
+    border-radius: 0.55rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.3rem 0.65rem;
+    font-size: 0.875rem;
+    color: var(--color-foreground);
+    box-shadow: var(--shadow-sm);
+  }
+  .how-illu__input--price {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+  }
+  .how-illu__typed {
+    display: inline-block;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .how-illu__caret {
+    display: inline-block;
+    width: 1px;
+    height: 0.7em;
+    margin-left: 1px;
+    background: var(--color-accent);
+    opacity: 0;
+    vertical-align: -0.05em;
+  }
+  .how-illu__field-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.28rem;
+  }
+  .how-illu__field-row--submit {
+    grid-template-columns: minmax(3.6rem, 0.7fr) 1.3fr;
+    align-items: stretch;
+  }
+  .how-illu__field-row--submit .how-illu__input {
+    min-height: 2.35rem;
+  }
+  .how-illu__type {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.55rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.45rem 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--color-muted);
+  }
+  .how-illu__type--selected {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+  .how-illu--list .how-illu__card--listed {
+    width: 100%;
+  }
+  .how-illu--list.how-illu--playing .how-illu__form {
+    animation: how-list-form 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--list.how-illu--playing .how-illu__card--listed {
+    animation: how-list-card 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--list.how-illu--playing .how-illu__typed {
+    clip-path: inset(0 100% 0 0);
+    animation: how-type 1.05s linear 0.28s forwards;
+  }
+  .how-illu--list.how-illu--playing .how-illu__caret {
+    animation: how-caret 3.2s linear forwards;
+  }
+  .how-illu--list.how-illu--playing .how-illu__type--selected {
+    animation: how-type-select 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--list.how-illu--playing .how-illu__input--price {
+    animation: how-price-in 3.2s var(--ease-out) forwards;
+  }
+  .how-illu--list.how-illu--playing .how-illu__btn {
+    animation: how-list-btn 3.2s var(--ease-out) forwards;
+  }
+
+  /* ——— Publisher: inbound request ——— */
+  .how-illu__request {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    gap: 0.6rem;
+    border-radius: 0.85rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    padding: 0.7rem 0.85rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .how-illu__request-copy {
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+  }
+  .how-illu--inbound.how-illu--playing .how-illu__request {
+    animation: how-inbound-request 3.2s var(--ease-out) forwards;
   }
 }
 
 /* How-it-works miniatures — each plays its transition once, then holds. */
-@keyframes how-role-pill {
-  0%, 22% { transform: translateX(100%); }
-  42%, 100% { transform: translateX(0); }
+@keyframes how-cursor-sponsor {
+  0% { opacity: 0; transform: translate(-2px, 1.15rem) scale(1); }
+  14% { opacity: 1; transform: translate(-2px, 1.15rem) scale(1); }
+  32% { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+  40% { transform: translate(-2px, -2px) scale(0.86); }
+  48% { transform: translate(-2px, -2px) scale(1); }
+  82% { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+  100% { opacity: 0; transform: translate(-2px, -2px) scale(1); }
 }
-@keyframes how-role-opt-sponsor {
-  0%, 22% { color: var(--color-muted); }
-  42%, 100% { color: var(--color-on-primary); }
+@keyframes how-cursor-publisher {
+  0% { opacity: 0; transform: translate(-2px, 1.15rem) scale(1); }
+  14% { opacity: 1; transform: translate(-2px, 1.15rem) scale(1); }
+  32% { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+  40% { transform: translate(-2px, -2px) scale(0.86); }
+  48% { transform: translate(-2px, -2px) scale(1); }
+  82% { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+  100% { opacity: 0; transform: translate(-2px, -2px) scale(1); }
 }
-@keyframes how-role-opt-publisher {
-  0%, 22% { color: var(--color-on-primary); }
-  42%, 100% { color: var(--color-muted); }
-}
-@keyframes how-role-cursor {
-  0% { opacity: 0; transform: translate(1.7rem, 1.8rem) scale(1); }
-  18% { opacity: 1; transform: translate(1.7rem, 1.8rem) scale(1); }
-  36% { opacity: 1; transform: translate(-2.2rem, 0.3rem) scale(1); }
-  44% { transform: translate(-2.2rem, 0.3rem) scale(0.82); }
-  52% { transform: translate(-2.2rem, 0.3rem) scale(1); }
-  82% { opacity: 1; transform: translate(-2.2rem, 0.3rem) scale(1); }
-  100% { opacity: 0; transform: translate(-2.2rem, 0.3rem) scale(1); }
+@keyframes how-opt-press {
+  0%, 36% { transform: scale(1); }
+  42% { transform: scale(0.96); }
+  50%, 100% { transform: scale(1); }
 }
 @keyframes how-role-dash {
-  0%, 42% { opacity: 0; transform: translateY(0.5rem); }
-  62%, 100% { opacity: 1; transform: translateY(0); }
+  0%, 44% { opacity: 0; transform: translateY(0.45rem) scale(0.97); }
+  64%, 100% { opacity: 1; transform: translateY(0) scale(1); }
 }
-@keyframes how-slot-in {
-  0% { opacity: 0; transform: translateY(0.6rem); }
-  100% { opacity: 1; transform: translateY(0); }
+@keyframes how-browse-pick {
+  0% { opacity: 0; transform: translateY(0.45rem) scale(0.97); box-shadow: 0 0 0 1.5px transparent; }
+  20%, 46% { opacity: 1; transform: translateY(0) scale(1); box-shadow: 0 0 0 1.5px transparent; }
+  54% { transform: scale(0.98); box-shadow: 0 0 0 1.5px var(--color-accent); }
+  64%, 100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 1.5px var(--color-accent); }
 }
-@keyframes how-book-free {
-  0%, 30% { opacity: 1; }
-  46%, 100% { opacity: 0; }
+@keyframes how-browse-dim {
+  0%, 8% { opacity: 0; transform: translateY(0.45rem) scale(0.97); }
+  28%, 100% { opacity: 0.55; transform: translateY(0) scale(1); }
 }
-@keyframes how-book-booked {
-  0%, 40% { opacity: 0; }
-  56%, 100% { opacity: 1; }
+@keyframes how-cursor-browse {
+  0% { opacity: 0; transform: translate(-2px, 1.05rem) scale(1); }
+  18% { opacity: 1; transform: translate(-2px, 1.05rem) scale(1); }
+  38% { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+  48% { transform: translate(-2px, -2px) scale(0.86); }
+  56% { transform: translate(-2px, -2px) scale(1); }
+  78% { opacity: 1; transform: translate(-2px, -2px) scale(1); }
+  100% { opacity: 0; transform: translate(-2px, -2px) scale(1); }
 }
-@keyframes how-book-fill {
-  0% { transform: scaleX(0); }
-  100% { transform: scaleX(0.7); }
+@keyframes how-status-free {
+  0%, 48% { opacity: 1; }
+  62%, 100% { opacity: 0; }
+}
+@keyframes how-status-booked {
+  0%, 52% { opacity: 0; }
+  66%, 100% { opacity: 1; }
+}
+@keyframes how-book-btn {
+  0%, 8% { opacity: 0; transform: scale(0.97); }
+  18%, 52% { opacity: 1; transform: scale(1); }
+  58% { opacity: 1; transform: scale(0.96); }
+  68%, 100% { opacity: 0; transform: scale(0.97); }
+}
+@keyframes how-book-success {
+  0%, 62% { opacity: 0; transform: scale(0.97); }
+  76%, 100% { opacity: 1; transform: scale(1); }
+}
+@keyframes how-cursor-book {
+  0% { opacity: 0; transform: translate(1.2rem, -1.6rem) scale(1); }
+  18% { opacity: 1; transform: translate(1.2rem, -1.6rem) scale(1); }
+  40% { opacity: 1; transform: translate(0.15rem, 0.2rem) scale(1); }
+  50% { transform: translate(0.15rem, 0.2rem) scale(0.86); }
+  58% { transform: translate(0.15rem, 0.2rem) scale(1); }
+  78% { opacity: 1; transform: translate(0.15rem, 0.2rem) scale(1); }
+  100% { opacity: 0; transform: translate(0.15rem, 0.2rem) scale(1); }
+}
+@keyframes how-list-form {
+  0% { opacity: 0; transform: translateY(0.4rem) scale(0.97); }
+  12%, 62% { opacity: 1; transform: translateY(0) scale(1); }
+  76%, 100% { opacity: 0; transform: translateY(-0.25rem) scale(0.98); }
+}
+@keyframes how-list-card {
+  0%, 68% { opacity: 0; transform: translateY(0.4rem) scale(0.97); }
+  84%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes how-type {
+  to { clip-path: inset(0 0 0 0); }
+}
+@keyframes how-caret {
+  0%, 10% { opacity: 0; }
+  12%, 20% { opacity: 1; }
+  22%, 28% { opacity: 0; }
+  30%, 38% { opacity: 1; }
+  40%, 46% { opacity: 0; }
+  48%, 54% { opacity: 1; }
+  56%, 100% { opacity: 0; }
+}
+@keyframes how-type-select {
+  0%, 38% {
+    border-color: var(--color-border);
+    background: transparent;
+    color: var(--color-muted);
+  }
+  50%, 100% {
+    border-color: var(--color-accent);
+    background: var(--color-accent-soft);
+    color: var(--color-accent);
+  }
+}
+@keyframes how-price-in {
+  0%, 42% { color: transparent; }
+  52%, 100% { color: var(--color-foreground); }
+}
+@keyframes how-list-btn {
+  0%, 54% { transform: scale(1); }
+  62% { transform: scale(0.96); }
+  70%, 100% { transform: scale(1); }
+}
+@keyframes how-inbound-request {
+  0%, 18% { opacity: 0; transform: translateY(0.45rem) scale(0.97); }
+  36%, 100% { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 @layer utilities {

@@ -8,6 +8,19 @@ import type { AudienceCopy } from './content';
 type Cta = { label: string; href: string };
 type UserRole = 'sponsor' | 'publisher';
 
+function renderTitle(title: string, serifWord?: string) {
+  if (!serifWord) return title;
+  const index = title.indexOf(serifWord);
+  if (index === -1) return title;
+  return (
+    <>
+      {title.slice(0, index)}
+      <span className="font-serif font-medium text-(--color-accent)">{serifWord}</span>
+      {title.slice(index + serifWord.length)}
+    </>
+  );
+}
+
 function dashboardCta(role: UserRole | null): Cta | null {
   if (role === 'sponsor') return { label: 'My campaigns', href: '/dashboard/sponsor' };
   if (role === 'publisher') return { label: 'My ad slots', href: '/dashboard/publisher' };
@@ -95,7 +108,7 @@ export function HeroCopy({
         id={titleId}
         className="text-3xl font-semibold tracking-tight text-(--color-foreground) text-balance sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]"
       >
-        {copy.title}
+        {renderTitle(copy.title, copy.titleSerif)}
       </TitleTag>
       <p className="mt-4 max-w-md text-base leading-relaxed text-(--color-muted) text-pretty sm:text-[17px]">
         {copy.subtext}

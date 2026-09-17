@@ -1,4 +1,5 @@
-import { FEATURES, type FeatureItem } from './content';
+import { cn } from '@/lib/utils';
+import { FEATURES, type Audience, type FeatureItem } from './content';
 
 function FeatureIcon({ name }: { name: FeatureItem['icon'] }) {
   const common = 'h-6 w-6';
@@ -44,7 +45,7 @@ function FeatureIcon({ name }: { name: FeatureItem['icon'] }) {
   }
 }
 
-export function LandingFeatures() {
+export function LandingFeatures({ audience }: { audience: Audience }) {
   const sponsorFeatures = FEATURES.filter((f) => f.audience === 'sponsor');
   const publisherFeatures = FEATURES.filter((f) => f.audience === 'publisher');
 
@@ -68,16 +69,38 @@ export function LandingFeatures() {
       </div>
 
       <div className="mt-10 grid gap-12 sm:gap-14 lg:grid-cols-2 lg:gap-16">
-        <FeatureGroup label="For Sponsors" items={sponsorFeatures} />
-        <FeatureGroup label="For Publishers" items={publisherFeatures} />
+        <FeatureGroup
+          label="For Sponsors"
+          items={sponsorFeatures}
+          active={audience === 'sponsor'}
+        />
+        <FeatureGroup
+          label="For Publishers"
+          items={publisherFeatures}
+          active={audience === 'publisher'}
+        />
       </div>
     </section>
   );
 }
 
-function FeatureGroup({ label, items }: { label: string; items: FeatureItem[] }) {
+function FeatureGroup({
+  label,
+  items,
+  active,
+}: {
+  label: string;
+  items: FeatureItem[];
+  active: boolean;
+}) {
   return (
-    <div>
+    <div
+      className={cn(
+        'transition-opacity duration-300 ease-out',
+        active ? 'opacity-100' : 'opacity-40',
+      )}
+      aria-current={active ? 'true' : undefined}
+    >
       <h3 className="text-base font-medium text-(--color-muted)">{label}</h3>
       <ul className="mt-5 space-y-5 ps-5 sm:ps-6">
         {items.map((item) => (
