@@ -1,5 +1,6 @@
 import {
   PrismaClient,
+  Prisma,
   type Sponsor,
   type Publisher,
   type Campaign,
@@ -44,6 +45,7 @@ if (process.env.NODE_ENV !== 'production') {
 export type { Sponsor, Publisher, Campaign, Creative, AdSlot, Placement, Payment };
 
 export {
+  Prisma,
   SubscriptionTier,
   CampaignStatus,
   CreativeType,

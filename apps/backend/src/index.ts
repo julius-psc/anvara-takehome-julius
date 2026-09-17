@@ -1,5 +1,6 @@
 import express, { type Application } from 'express';
 import cors from 'cors';
+import rateLimit from 'express-rate-limit';
 import routes from './routes/index.js';
 
 const app: Application = express();
@@ -9,7 +10,6 @@ const PORT = process.env.BACKEND_PORT || 4291;
 // CORS: reflect the known frontend origin and allow credentials so the browser
 // sends the Better Auth session cookie on cross-origin requests (e.g. booking).
 // A wildcard origin can't be combined with credentials, so we pin it.
-// TODO: Add rate limiting middleware to prevent abuse (e.g., express-rate-limit)
 const FRONTEND_ORIGIN = process.env.BETTER_AUTH_URL || 'http://localhost:3847';
 app.use(
   cors({
@@ -19,8 +19,20 @@ app.use(
 );
 app.use(express.json());
 
-// Mount all API routes
-app.use('/api', routes);
+// Rate limiting: cap requests per IP so a single client can't hammer the API.
+// A 15-minute window with a generous cap stops abuse without getting in the way
+// of normal dashboard use. Emits standard RateLimit-* headers so clients can
+// back off gracefully; over the limit returns 429.
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 300, // max requests per IP per window
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' },
+});
+
+// Mount all API routes behind the limiter.
+app.use('/api', apiLimiter, routes);
 
 // ============================================================================
 // SERVER STARTUP
@@ -35,6 +47,7 @@ app.listen(PORT, () => {
   console.log('    GET    /api/sponsors');
   console.log('    GET    /api/sponsors/:id');
   console.log('    POST   /api/sponsors');
+  console.log('    PUT    /api/sponsors/:id');
   console.log('  Publishers:');
   console.log('    GET    /api/publishers');
   console.log('    GET    /api/publishers/:id');
