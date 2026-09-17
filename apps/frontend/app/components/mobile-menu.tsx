@@ -1,13 +1,26 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 
 const EASE_OUT = [0.23, 1, 0.32, 1] as const;
 // Mirrors --ease-drawer: a decisive slide for the off-canvas panel.
 const EASE_DRAWER = [0.32, 0.72, 0, 1] as const;
+
+// Client-only flag for the portal. `useSyncExternalStore` returns the server
+// snapshot (false) during SSR and the first hydration render, then the client
+// snapshot (true) — so we skip `createPortal` (which needs `document`) until
+// we're safely on the client, with no setState-in-effect.
+const noopSubscribe = () => () => {};
+function useIsClient() {
+  return useSyncExternalStore(
+    noopSubscribe,
+    () => true,
+    () => false
+  );
+}
 
 type UserRole = 'sponsor' | 'publisher' | null;
 
@@ -32,14 +45,10 @@ interface MobileMenuProps {
 // drawer collapses into the floating pill instead of covering the viewport.
 export function MobileMenu({ links, pathname, user, role, isPending, onSignOut }: MobileMenuProps) {
   const [open, setOpen] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useIsClient();
   const panelRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const reduceMotion = useReducedMotion();
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // Close on navigation. Tapping a link closes directly (below); this render-time
   // reset also covers browser back/forward so the drawer never lingers on a route
@@ -160,7 +169,10 @@ export function MobileMenu({ links, pathname, user, role, isPending, onSignOut }
                 </div>
               ) : null}
 
-              <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto" aria-label="Primary">
+              <nav
+                className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto"
+                aria-label="Primary"
+              >
                 {links.map((link) => (
                   <Link
                     key={link.href}
