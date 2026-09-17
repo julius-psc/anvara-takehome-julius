@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { authClient } from '@/auth-client';
+import { Reveal } from '@/app/components/reveal';
 import type { AudienceCopy } from './content';
 
 type Cta = { label: string; href: string };
@@ -104,36 +105,42 @@ export function HeroCopy({
 
   return (
     <div className={className}>
-      <TitleTag
-        id={titleId}
-        className="text-3xl font-semibold tracking-tight text-(--color-foreground) text-balance sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]"
-      >
-        {renderTitle(copy.title, copy.titleSerif)}
-      </TitleTag>
-      <p className="mt-4 max-w-md text-base leading-relaxed text-(--color-muted) text-pretty sm:text-[17px]">
-        {copy.subtext}
-      </p>
-      <div className="mt-8 flex flex-wrap items-center gap-3">
-        {ctas.map((cta, i) =>
-          i === 0 ? (
-            <Link
-              key={cta.href}
-              href={cta.href}
-              className="btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold"
-            >
-              {cta.label}
-            </Link>
-          ) : (
-            <Link
-              key={cta.href}
-              href={cta.href}
-              className="rounded-xl border border-(--color-border) bg-(--color-surface) px-5 py-2.5 text-sm font-medium text-(--color-foreground) transition-colors hover:bg-(--color-surface-hover)"
-            >
-              {cta.label}
-            </Link>
-          )
-        )}
-      </div>
+      <Reveal delay={0.08}>
+        <TitleTag
+          id={titleId}
+          className="text-3xl font-semibold tracking-tight text-(--color-foreground) text-balance sm:text-4xl lg:text-[2.75rem] lg:leading-[1.1]"
+        >
+          {renderTitle(copy.title, copy.titleSerif)}
+        </TitleTag>
+      </Reveal>
+      <Reveal delay={0.16}>
+        <p className="mt-4 max-w-md text-base leading-relaxed text-(--color-muted) text-pretty sm:text-[17px]">
+          {copy.subtext}
+        </p>
+      </Reveal>
+      <Reveal delay={0.24}>
+        <div className="mt-8 flex flex-wrap items-center gap-3">
+          {ctas.map((cta, i) =>
+            i === 0 ? (
+              <Link
+                key={cta.href}
+                href={cta.href}
+                className="btn-primary rounded-xl px-5 py-2.5 text-sm font-semibold"
+              >
+                {cta.label}
+              </Link>
+            ) : (
+              <Link
+                key={cta.href}
+                href={cta.href}
+                className="rounded-xl border border-(--color-border) bg-(--color-surface) px-5 py-2.5 text-sm font-medium text-(--color-foreground) transition-colors hover:bg-(--color-surface-hover)"
+              >
+                {cta.label}
+              </Link>
+            )
+          )}
+        </div>
+      </Reveal>
     </div>
   );
 }
